@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飯高生専用ダッ</title>
+    <!-- Canvas Confetti for Bingo -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f2f5f8;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* --- 1. HOMEPAGE / LANGUAGE SELECT --- */
+        #homepage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 30px;
+        }
+
+        #homepage h1 {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            color: #2d3748;
+            letter-spacing: 1px;
+        }
+
+        #homepage p {
+            font-size: 23px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .lang-btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            width: 100%;
+            max-width: 270px;
+        }
+
+        .lang-btn {
+            border: none;
+            padding: 22px 30px;
+            font-size: 24px;
+            border-radius: 35px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.1s ease;
+        }
+
+        .lang-btn:active { transform: scale(0.98); }
+        .lang-btn.ja { background-color: #2b6cb0; }
+        .lang-btn.en { background-color: #e53e3e; }
+        .lang-btn.zh { background-color: #ecc94b; color: #333; }
+
+        /* --- 2. MAIN DASHBOARD --- */
+        #dashboard {
+            display: none;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .top-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 14px 24px;
+            border-radius: 25px;
+            font-size: 17px;
+            font-weight: bold;
+            color: #4a5568;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #4c51bf;
+            color: white;
+            border-color: #4c51bf;
+        }
+
+        .btn-lang-switch {
+            background: #ffffff;
+            border: 1px solid #cbd5e0;
+            padding: 12px 22px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #4c51bf;
+            cursor: pointer;
+        }
+
+        .dashboard-view { display: none; }
+        .dashboard-view.active { display: block; }
+
+        .pill-btn {
+            background-color: #4c51bf;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 12px;
+            box-shadow: 0 6px 12px rgba(76, 81, 191, 0.25);
+            transition: transform 0.1s;
+        }
+
+        .pill-btn:hover { transform: translateY(-1px); }
+
+        .btn-return-center {
+            display: block;
+            margin: 30px auto 10px auto;
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* --- TAB 1: TIMETABLE --- */
+        .class-select-box {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .class-select-box h2 {
+            font-size: 32px;
+            margin-bottom: 35px;
+            color: #2d3748;
+        }
+
+        .timetable-container {
+            display: flex;
+            gap: 25px;
+            margin-top: 10px;
+        }
+
+        .timetable-main {
+            flex: 1.4;
+            background: white;
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .timetable-main h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: #1a202c;
+        }
+
+        .timetable-date {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 20px;
+        }
+
+        .edit-status-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .edit-status-badge.locked {
+            background-color: #edf2f7;
+            color: #718096;
+        }
+
+        .edit-status-badge.unlocked {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+
+        .period-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .period-num {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3182ce;
+            width: 15px;
+            text-align: center;
+        }
+
+.multiselect-container {
+            position: relative;
+            width: 150px;
+        }
+
+        .multiselect-btn {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 0 10px;
+            font-size: 13px;
+            color: #2d3748;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.2s ease;
+        }
+
+        .multiselect-btn:disabled {
+            background-color: #edf2f7 !important;
+            color: #a0aec0 !important;
+            cursor: not-allowed !important;
+            border-color: #e2e8f0 !important;
+            opacity: 0.8;
+        }
+
+        .multiselect-dropdown {
+            display: none;
+            position: absolute;
+            top: 48px;
+            left: 0;
+            width: 220px;
+            max-height: 250px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #cbd5e0;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            z-index: 100;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .multiselect-dropdown.show {
+            display: block;
+        }
+
+        .multiselect-group-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #3182ce;
+            background: #edf2f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 6px 0 4px 0;
+        }
+
+        .multiselect-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px;
+            font-size: 13px;
+            color: #2d3748;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .multiselect-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .multiselect-item input {
+            cursor: pointer;
+        }
+
+        .timetable-input {
+            flex: 1;
+            height: 44px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 0 14px;
+            font-size: 14px;
+            color: #2d3748;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .period-select:disabled, 
+        .timetable-input:disabled, 
+        .option-input:disabled, 
+        .btn-add-option:disabled {
+            background-color: #edf2f7 !important;
+            color: #a0aec0 !important;
+            cursor: not-allowed !important;
+            border-color: #e2e8f0 !important;
+            opacity: 0.8;
+        }
+
+        .period-select:focus:not(:disabled),
+        .timetable-input:focus:not(:disabled) {
+            border-color: #3182ce;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        optgroup {
+            font-weight: bold;
+            color: #3182ce;
+            font-style: normal;
+            background-color: #edf2f7;
+        }
+
+        option {
+            color: #2d3748;
+            background-color: #ffffff;
+            padding: 4px;
+        }
+
+        .option-manager-box {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #cbd5e0;
+            text-align: left;
+        }
+
+        .option-manager-box h3 {
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .option-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .option-input {
+            flex: 1;
+            height: 36px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-size: 13px;
+        }
+
+        .btn-add-option {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 0 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .custom-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .custom-tag {
+            background-color: #edf2f7;
+            color: #2d3748;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .custom-tag button {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .custom-tag button:disabled {
+            color: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .passcode-unlock-box {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .passcode-unlock-box input {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .passcode-unlock-box button {
+            background-color: #4c51bf;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .timetable-sidebar {
+            flex: 0.9;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .memo-grid {
+            background: white;
+            padding: 16px;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+	.memo-cell {
+            height: 85px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 13px;
+            color: #2d3748;
+            resize: none;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .memo-cell:focus {
+            border-color: #3182ce;
+            background-color: #fff;
+        }
+
+        .calendar-widget {
+            background: white;
+            padding: 18px 20px;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+
+        .calendar-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+
+        .calendar-days-header, .calendar-dates-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .calendar-days-header span {
+            font-weight: bold;
+            color: #a0aec0;
+            padding-bottom: 6px;
+        }
+
+        .calendar-dates-grid span {
+            padding: 6px 0;
+            border-radius: 50%;
+            color: #2d3748;
+        }
+
+        .calendar-dates-grid .today {
+            background-color: #3182ce;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* --- TAB 2: TRIVIA --- */
+        .trivia-container {
+            max-width: 900px;
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        .trivia-container h2 {
+            font-size: 28px;
+            margin-bottom: 25px;
+        }
+
+        .trivia-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 35px;
+            font-size: 22px;
+            font-weight: bold;
+            line-height: 1.6;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- TAB 3: BINGO (Full-Screen Background) --- */
+        #tab3 {
+            width: 100vw;
+            min-height: 100vh;
+            margin-left: calc(-50vw + 50%);
+            margin-top: -20px;
+            padding: 30px 20px;
+            background-image: url('https://i.postimg.cc/W4Z2kPZs/Unknown.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .bingo-wrapper {
+            max-width: 520px;
+            margin: 0 auto;
+            text-align: center;
+            border: 8px solid #d53f8c;
+            border-radius: 24px;
+            padding: 20px 20px 32px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        .bingo-header-banner {
+            background-color: rgba(213, 63, 140, 0.9);
+            color: white;
+            padding: 8px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .bingo-sub {
+            font-size: 13px;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            background: rgba(155, 44, 44, 0.85);
+            padding: 12px;
+            border-radius: 16px;
+        }
+
+        .bingo-cell {
+            aspect-ratio: 1;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2d3748;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            text-align: center;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+        }
+
+        .bingo-cell.selected {
+            background-color: #FFF9C8;
+            color: black;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .bingo-wrapper::after {
+            content: '🐘';
+            position: absolute;
+            bottom: 4px;
+            left: -40px;
+            font-size: 20px;
+            animation: walkRight 12s linear infinite;
+        }
+
+        @keyframes walkRight {
+            0% { left: -40px; }
+            100% { left: calc(100% + 40px); }
+        }
+
+        /* --- TAB 4: HOROSCOPE --- */
+        #tab-horoscope {
+            width: 100vw;
+            min-height: 100vh;
+            margin-left: calc(-50vw + 50%);
+            margin-top: -20px;
+            padding: 30px 20px;
+            background-image: url("https://i.postimg.cc/1R6bXFRt/Zvezdy-nebo-Mlecnyj-Put'.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .horoscope-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .horoscope-overlay {
+            background: rgba(255, 255, 255, 0.88);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .horoscope-container h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            text-align: center;
+            color: #1a202c;
+        }
+
+        .horoscope-date {
+            color: #4a5568;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .horoscope-ranked-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .horoscope-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            border-left: 6px solid #4c51bf;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            text-align: left;
+        }
+
+        .horoscope-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .horoscope-rank-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .rank-badge {
+            background: #4c51bf;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        .rank-badge.top1 { background: #d69e2e; }
+        .rank-badge.top2 { background: #a0aec0; }
+        .rank-badge.top3 { background: #dd6b20; }
+
+        .horoscope-rank-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+
+        .horoscope-desc {
+            font-size: 13.5px;
+            color: #4a5568;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .horoscope-item {
+            font-size: 12px;
+            color: #718096;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .timetable-container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================= 1. HOMEPAGE ================= -->
+<div id="homepage">
+    <h1>飯高生専用ダッシュボード</h1>
+    <p>Select your language / 言語を選択してください / 请选择语言</p>
+    <div class="lang-btn-container">
+        <button class="lang-btn ja" onclick="enterApp('ja')">日本語</button>
+        <button class="lang-btn en" onclick="enterApp('en')">English</button>
+        <button class="lang-btn zh" onclick="enterApp('zh')">简体中文</button>
+    </div>
+</div>
+
+<!-- ================= 2. MAIN DASHBOARD ================= -->
+<div id="dashboard">
+    <div class="top-navbar">
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="tab1" id="nav-tab1">📅 時間割入力</button>
+            <button class="tab-btn" data-tab="tab2" id="nav-tab2">💡 豆知識</button>
+            <button class="tab-btn" data-tab="tab3" id="nav-tab3">🎪 あるあるビンゴ</button>
+            <button class="tab-btn" data-tab="tab-horoscope" id="nav-tab4">🔮 12星座占い</button>
+        </div>
+        <button class="btn-lang-switch" id="btn-lang-return" onclick="returnToLangSelect()">🌐 言語切替 (Return)</button>
+    </div>
+
+    <!-- TAB 1: TIMETABLE -->
+    <div id="tab1" class="dashboard-view active">
+        <div id="t1-course-select" class="class-select-box">
+            <h2 id="t1-course-title">Select Class / クラス選択</h2>
+            <div>
+                <button class="pill-btn" onclick="chooseCourse('tokushin')">特進学科</button>
+                <button class="pill-btn" onclick="chooseCourse('sougou')">総合学科</button>
+                <button class="pill-btn" onclick="chooseCourse('jidousha')">自動車専攻科</button>
+            </div>
+        </div>
+
+        <div id="t1-groups-tokushin" class="class-select-box" style="display:none;">
+            <h2>特進学科</h2>
+            <div>
+                <button class="pill-btn" onclick="openTimetable('tokushin_1', '1組')">1組</button>
+                <button class="pill-btn" onclick="openTimetable('tokushin_2', '2組')">2組</button>
+                <button class="pill-btn" onclick="openTimetable('tokushin_3', '3組')">3組</button>
+                <button class="pill-btn" onclick="openTimetable('tokushin_4', '4組')">4組</button>
+            </div>
+            <button class="btn-return-center" onclick="backToCourses()">← Return / 戻る</button>
+        </div>
+
+        <div id="t1-groups-sougou" class="class-select-box" style="display:none;">
+            <h2>総合学科</h2>
+            <div>
+                <button class="pill-btn" onclick="openTimetable('sougou_5', '5組')">5組</button>
+                <button class="pill-btn" onclick="openTimetable('sougou_6', '6組')">6組</button>
+                <button class="pill-btn" onclick="openTimetable('sougou_7', '7組')">7組</button>
+                <button class="pill-btn" onclick="openTimetable('sougou_8', '8組')">8組</button>
+            </div>
+            <button class="btn-return-center" onclick="backToCourses()">← Return / 戻る</button>
+        </div>
+	<div id="t1-groups-jidousha" class="class-select-box" style="display:none;">
+    <h2>自動車専攻科</h2>
+    <div>
+        <button class="pill-btn" onclick="openTimetable('jidousha_1', '1専')">1専</button>
+        <button class="pill-btn" onclick="openTimetable('jidousha_2', '2専')">2専</button>
+    </div>
+    <button class="btn-return-center" onclick="backToCourses()">← Return / 戻る</button>
+</div>
+
+        <div id="t1-editor" style="display:none;">
+            <div class="timetable-container">
+                <div class="timetable-main">
+                    <h2 id="timetable-class-header">1組 時間割</h2>
+                    <div class="timetable-date" id="timetable-current-date"></div>
+                    <div id="edit-status" class="edit-status-badge locked">🔒 Read-Only Mode</div>
+
+                    <div id="periods-list"></div>
+
+                    <!-- Custom Option Manager -->
+                    <div class="option-manager-box">
+                        <h3 id="opt-manager-title">➕ Add Custom Subject Options / 科目選択肢の追加</h3>
+                        <div class="option-input-group">
+                            <input type="text" id="new-option-input" class="option-input" placeholder="e.g. 物理, 体育, Art...">
+                            <button class="btn-add-option" id="btn-add-option" onclick="addNewSubjectOption()">Add / 追加</button>
+                        </div>
+                        <div id="custom-tags-container" class="custom-tags-container"></div>
+                    </div>
+
+                    <!-- Passcode Inline Unlock Box Below Table -->
+                    <div class="passcode-unlock-box">
+                        <input type="password" id="passcode-inline-input" placeholder="Passcode">
+                        <button onclick="checkInlinePasscode()">Unlock Editing</button>
+                    </div>
+                </div>
+
+                <div class="timetable-sidebar">
+                    <div class="memo-grid" id="memo-grid">
+			<textarea class="memo-cell" id="memo-0" oninput="savePrivateMemos()"></textarea>
+    			<textarea class="memo-cell" id="memo-1" oninput="savePrivateMemos()"></textarea>
+    			<textarea class="memo-cell" id="memo-2" oninput="savePrivateMemos()"></textarea>
+    			<textarea class="memo-cell" id="memo-3" oninput="savePrivateMemos()"></textarea>
+    			<textarea class="memo-cell" id="memo-4" oninput="savePrivateMemos()"></textarea>
+    			<textarea class="memo-cell" id="memo-5" oninput="savePrivateMemos()"></textarea>
+                    </div>
+
+                    <div class="calendar-widget">
+                        <div class="calendar-title" id="cal-month-header"></div>
+                        <div class="calendar-days-header" id="cal-days-header">
+                            <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+                        </div>
+                        <div class="calendar-dates-grid" id="cal-dates-grid"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-return-center" id="btn-back-from-editor" onclick="backFromEditor()">← Return / 戻る</button>
+        </div>
+    </div>
+
+    <!-- TAB 2: TRIVIA -->
+    <div id="tab2" class="dashboard-view">
+        <div class="trivia-container">
+            <h2 id="t2-title">💡 今日の雑学・豆知識</h2>
+            <div class="trivia-card" id="trivia-text">loading...</div>
+            <button class="pill-btn" id="t2-btn" onclick="nextTrivia()">別の雑学を見る</button>
+        </div>
+    </div>
+
+    <!-- TAB 3: BINGO -->
+    <div id="tab3" class="dashboard-view">
+        <div class="bingo-wrapper">
+            <div class="bingo-header-banner" id="t3-title">🎪 飯高スクールライフビンゴ</div>
+            <div class="bingo-sub" id="t3-sub">学校生活で体験したステップしてマスを進もう！</div>
+            <div class="bingo-grid" id="bingo-grid"></div>
+        </div>
+    </div>
+
+    <!-- TAB 4: HOROSCOPE -->
+    <div class="dashboard-view" id="tab-horoscope">
+        <div class="horoscope-container">
+            <div class="horoscope-overlay">
+                <h2 id="t4-title">🔮 デイリー 12星座占い</h2>
+                <div class="horoscope-date" id="horoscope-date-label"></div>
+                <div id="horoscope-ranked-list" class="horoscope-ranked-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'ja';
+    let activeCourseCategory = null;
+    let activeClassId = null;
+    let timetableStorage = {};
+    let customSubjects = [];
+    let bingoState = []; // Holds current card layout and selection state
+    let activeCompletedLines = new Set();
+
+
+    const subjectGroups = [
+        { groupName: "数学", subjects: ["数学A", "数学B", "数学C", "数学１", "数学２", "数学３", "数学演習"] },
+        { groupName: "英語", subjects: ["英コミ１", "英コミ２", "英コミ３", "論表１", "論表２", "論表３"] },
+        { groupName: "国語", subjects: ["古典", "日本史", "日本語", "国語演習"] },
+        { groupName: "地理", subjects: ["化学", "生物"] },
+        { groupName: "体育", subjects: ["体育", "ダンス", "保険"] },
+        { groupName: "副教科", subjects: ["地理", "家庭科", "音楽", "書道"] }
+    ];
+
+    const STORAGE_KEY_TIMETABLE = 'app_timetable_data';
+    const STORAGE_KEY_OPTIONS = 'app_custom_options';
+    const STORAGE_KEY_BINGO_SELECTED = 'app_bingo_selected_indexes';
+    
+    const translations = {
+        ja: {
+            nav1: "📅 時間割入力", nav2: "💡 豆知識", nav3: "🎪 あるあるビンゴ", nav4: "🔮 12星座占い",
+            returnLang: "🌐 言語切替 (Return)", selectClass: "Select Class / クラス選択",
+            returnBtn: "← Return / 戻る", triviaTitle: "💡 今日の雑学・豆知識", triviaBtn: "別の雑学を見る",
+            bingoTitle: "🎪 飯高スクールライフビンゴ", bingoSub: "学校生活で体験したステップしてマスを進もう！",
+            horoTitle: "🔮 デイリー 12星座占いランキング",
+            calDays: ["日", "月", "火", "水", "木", "金", "土"],
+            suffixSched: " 時間割", selectPrompt: "選択...", customGroupLabel: "✏️ 追加科目 (Custom)"
+        },
+        en: {
+            nav1: "📅 Schedule Input", nav2: "💡 Trivia Card", nav3: "🎪 School Bingo", nav4: "🔮 Horoscope",
+            returnLang: "🌐 Change Lang", selectClass: "Select Class",
+            returnBtn: "← Return / Back", triviaTitle: "💡 Daily Trivia", triviaBtn: "Get Another Fact",
+            bingoTitle: "🎪 School Life Bingo", bingoSub: "Tap boxes that apply to you!",
+            horoTitle: "🔮 Daily 12-Sign Horoscope Rankings",
+            calDays: ["S", "M", "T", "W", "T", "F", "S"],
+            suffixSched: " Schedule", selectPrompt: "Select...", customGroupLabel: "✏️ Custom Subjects"
+        },
+        zh: {
+            nav1: "📅 課程時間表", nav2: "💡 每日冷知識", nav3: "🎪 校園賓果", nav4: "🔮 星座運勢",
+            returnLang: "🌐 切換語言", selectClass: "選擇班級",
+            returnBtn: "← 返回", triviaTitle: "💡 每日冷知識", triviaBtn: "換一個冷知識",
+            bingoTitle: "🎪 校園日常賓果", bingoSub: "點擊符合你經歷的格子！",
+            horoTitle: "🔮 每日12星座運勢排行榜",
+            calDays: ["日", "一", "二", "三", "四", "五", "六"],
+            suffixSched: " 課表", selectPrompt: "選擇...", customGroupLabel: "✏️ 自訂科目"
+        }
+    };
+
+    const triviaData = {
+        ja: ["シャープペンの芯の「H」はHard（硬い）、「B」はBlack（黒い）の略である。",
+        "日本で一番多い学校の名前は「第一小学校」である。",
+        "黒板が緑色なのに「黒板」と呼ぶのは、昔は本当に黒い板を使っていたから。",
+        "ことわざ「情けは人のためならず」は、「人に親切にすれば、巡り巡って自分に良いことが返ってくる」という意味である。",
+        "世界で一番最初に作られた自動販売機で売られていたのは「聖水」である。",
+        "アイスクリームには賞味期限がない（冷凍保存なら品質が劣化しにくいため）。",
+        "納豆は、朝より夜に食べた方が血液サラサラ効果がアップする",
+        "熱々のご飯に納豆をかけると納豆の栄養効果が下がる",
+        "歯を磨く時、歯ブラシは濡らさない方がより綺麗に磨ける",
+        "服についたカレーの染みは、天日干しをするだけで綺麗に落ちる",
+        "ご飯は冷たいまま食べた方が太りづらい",
+        "食後にグラス一杯の水を飲むと、胃酸の逆流を抑えることができる",
+        "喉が痛い時はマシュマロを食べると痛みが和らぐ",
+        "スマホの充電は100%にせず80%程度で止めると長持ちする",
+        "虫刺されに酢をかけると痒みや炎症が和らぐ",
+        "しゃっくりが止まらない時は、指で両耳を塞ぐと止まりやすい",
+        "ポテトチップスは着火剤の代わりになる",
+        "頭痛がなかなか治らない時は、手足を温めると症状が楽になる",
+        "同じ運動でも、夏より冬の方が消費カロリーが高い",
+        "赤ちゃんが泣き止まない時は、反町隆史のPOISONを聴かせると泣き止む",
+        "連載当初、ドラえもんはどら焼きではなく餅が好きだった",
+        "マリオがジャンプして壊しているブロックは、クッパによって姿を変えられたキノコ王国の住民",
+        "サザエさんのエンディングの曲は3番目の歌詞",
+        "サザエさんは新年一発目のジャンケンは30年連続でチョキを出している",
+        "ジャイアンの名言「お前の物は俺の物、俺の物も俺の物」はイギリスのことわざ",
+        "ゲゲゲの鬼太郎の目玉のオヤジは目を閉じて寝る",
+        "キティちゃんの正しい名前はハローキティではなく「キティ・ホワイト」",
+        "魔女の宅急便の少年トンボはあだ名。本名はコポリ",
+        "「アンパンマン」のチーズは元々バイキンマンの手下だった",
+        "クレヨンしんちゃんの父、野原ひろしの兄の名前は「野原せまし」",
+        "マリオの本名は「マリオ・マリオ」ルイージの本名は「ルイージ・マリオ」",
+        "マリオはあー見えてまだ26歳。ちなみに身長は155cm",
+        "サザエさんはあー見えてまだ24歳",
+        "タラちゃんには「ひとでちゃん」という妹がいる",
+        "波平の髪の毛は一本ではない",
+        "ドラえもんは3mm浮いている",
+        "アンパンマンのあんこは粒あん",
+        "古代オリンピックは8年周期で開催されていた",
+        "大相撲の行司は軍配を間違えた時に切腹するための刀を持っている",
+        "フィギュアスケートは元々、氷上を滑って描いた図形の正確さを競う競技だった",
+        "卓球のラケットは国際ルール上どんなに大きくても良いと決められている",
+        "人は約90分ごとに集中力が切れやすいといわれている。",
+        "テスト前は徹夜するより、しっかり寝た方が記憶は定着しやすい。",
+        "『やる気が出たら始める』より、『始めたらやる気が出る』ことの方が多い。",
+        "スマホの通知は見なくても集中力を下げる原因になることがある。",
+        "勉強は『読む』より『思い出す』練習をした方が記憶に残りやすい。",
+        "手書きでメモをすると、タイピングより内容を覚えやすいといわれている。",
+        "朝日を浴びると体内時計が整いやすくなる。",
+        "15〜20分ほどの昼寝は、午後の集中力アップにつながることがある。",
+        "緊張しているときほど、周りには意外と気づかれていないことが多い。",
+        "目標を紙に書くと、達成率が上がるという研究がある。",
+        "人は最初と最後に見聞きしたことを覚えやすい傾向がある。",
+        "歩きながら考えると、新しいアイデアが浮かびやすくなることがある。",
+        "人に教えるつもりで勉強すると、理解が深まりやすい。",
+        "青色には集中しやすいイメージを与える効果があるといわれている。",
+        "『まだできない』と考える人の方が成長しやすいという考え方がある。",
+        "笑顔を作るだけでも気分が前向きになりやすい。",
+        "人は『締め切り』がある方が行動しやすい傾向がある。",
+        "同じ内容でも、何回かに分けて勉強した方が覚えやすい。",
+        "好きな香りは気分転換につながることがある。",
+        "人は誰かに応援されると、本来の力を発揮しやすくなる。",
+        "SNSでは楽しい出来事の投稿が多く、実際の生活とは違って見えることがある。",
+        "人は選択肢が多すぎるとかえって決めにくくなる。",
+        "『ありがとう』を伝えることは、自分の幸福感にもつながるといわれている。",
+        "勉強場所を変えると気分が切り替わり、集中しやすくなることがある。",
+        "人は新しいことより、続けることの方が難しいといわれている。",
+        "運動すると脳への血流が増え、集中力アップにつながることがある。",
+        "好きな音楽でも、歌詞があると勉強に集中しにくい人もいる。",
+        "人は失敗したことの方が記憶に残りやすい傾向がある。",
+        "楽しい予定があるだけで気分が前向きになりやすい。",
+        "睡眠中に脳は記憶を整理していると考えられている。",
+        "『あと5分だけ』のスマホが30分以上になることは珍しくない。",
+        "第一印象は数秒で決まることが多いといわれている。",
+        "人は相手の名前を呼ぶだけで親近感を持ちやすい。",
+        "姿勢を正すと気分まで前向きになりやすいという研究がある。",
+        "一日5分の積み重ねでも、一年では30時間以上になる。",
+        "緊張したときは息を長く吐くと落ち着きやすい。",
+        "人は小さな成功を積み重ねると自信がつきやすい。",
+        "完璧を目指すより、まず終わらせる方が続けやすい。",
+        "復習は時間を空けて行う方が記憶に残りやすい。",
+        "人は『自分で選んだ』と思うとやる気が出やすい。",
+        "歩きながら暗記すると覚えやすくなる人もいる。",
+        "集中力が切れたら、立ち上がって少し体を動かすと気分転換になる。",
+        "水分不足は集中力の低下につながることがある。",
+        "人は楽しかった出来事ほど時間が短く感じやすい。",
+        "新しいことを始めるのに『遅すぎる』という明確な基準はない。",
+        "勉強した直後より、翌日に少し復習した方が覚えやすい。",
+        "笑いはストレスを和らげる効果があるといわれている。",
+        "友達と目標を共有すると継続しやすくなることがある。",
+        "『できるかどうか』より『やってみる』ことが成長につながる。",
+        "毎日の小さな習慣は、数か月後には大きな差になることがある。",
+        "人は相手の話を最後まで聞くだけで、『話しやすい人』という印象を持たれやすい。",
+        "パン食い競争は130年前からあった",
+        "サッカーの試合中、自分にレッドカードを出して退場した審判がいる",
+        "プロ野球の永遠のライバル巨人と阪神の応援歌は同じ作曲家が作った",
+        "カーリングのストーンは、スコットランドの１つの島でしか作れない",
+        "野球拳には全国大会がある",
+        "剣道の公式試合は二刀流でも出場できる"
+],
+        en: ["The 'H' on a mechanical pencil lead stands for 'Hard', and 'B' stands for 'Black'.",
+        "The most common school name in Japan is 'Dai-ichi Elementary School'.",
+        "Blackboards are called 'blackboards' even though they are green because they were actually black boards in the past.",
+        "The proverb 'Charity is not for others' actually means 'if you show kindness to others, it will eventually return to you as good fortune'.",
+        "The world's first vending machine sold 'holy water'.",
+        "Ice cream does not have an expiration date (because its quality rarely degrades when kept frozen).",
+        "Eating natto at night enhances its blood-thinning effects more than eating it in the morning.",
+        "Pouring natto over piping-hot rice reduces its nutritional benefits.",
+        "When brushing your teeth, it is better not to wet the toothbrush for a cleaner finish.",
+        "Curry stains on clothes can be removed simply by drying them in direct sunlight.",
+        "Eating cold rice makes you less likely to gain weight than eating hot rice.",
+        "Drinking a glass of water after meals can help suppress acid reflux.",
+        "If you have a sore throat, eating marshmallows can help soothe the pain.",
+        "Stopping your smartphone charge at around 80% instead of 100% helps extend battery lifespan.",
+        "Applying vinegar to bug bites can ease itching and inflammation.",
+        "If you can't stop hiccuping, plugging both ears with your fingers often helps stop it.",
+        "Potato chips can be used as a substitute for fire starters.",
+        "When a headache won't go away, warming your hands and feet can ease the symptoms.",
+        "For the same exercise, you burn more calories in winter than in summer.",
+        "When a baby won't stop crying, playing Takashi Sorimachi's song 'POISON' can make them stop.",
+        "When the series first began, Doraemon liked mochi (rice cakes) instead of dorayaki.",
+        "The blocks Mario breaks by jumping are actually citizens of the Mushroom Kingdom transformed by Bowser.",
+        "The ending theme song of Sazae-san uses the 3rd verse of the lyrics.",
+        "For 30 consecutive years, Sazae's first New Year's Jan-ken-pon move has been Scissors.",
+        "Gian's famous line, 'What's yours is mine, and what's mine is my own,' is actually an English proverb.",
+        "Medama-oyaji (Eyeball Father) from GeGeGe no Kitaro sleeps with his eye closed.",
+        "Hello Kitty's real full name is not Hello Kitty, but 'Kitty White'.",
+        "The boy Tombo in Kiki's Delivery Service is a nickname; his real name is Kopori.",
+        "Cheese the dog from Anpanman was originally a minion of Baikinman.",
+        "The name of Nohara Hiroshi's older brother in Crayon Shin-chan is 'Nohara Semashi'.",
+        "Mario's full name is 'Mario Mario', and Luigi's full name is 'Luigi Mario'.",
+        "Despite his appearance, Mario is only 26 years old, and his height is 155 cm.",
+        "Despite her appearance, Sazae is only 24 years old.",
+        "Tara-chan has a younger sister named 'Hitode-chan'.",
+        "Namihei does not have just a single hair on his head.",
+        "Doraemon floats 3 mm above the ground.",
+        "The sweet bean paste inside Anpanman's head is coarse red bean paste (Tsubuan).",
+        "The ancient Olympics were held every 8 years.",
+        "Grand sumo referees (Gyoji) carry a dagger to commit ritual suicide (Seppuku) if they make a bad call.",
+        "Figure skating was originally a competition to accurately draw geometric patterns on ice while skating.",
+        "According to official international rules, a table tennis paddle can be any size without restriction.",
+        "It is said that human concentration tends to break down roughly every 90 minutes.",
+        "You retain memory better by getting a good night's sleep before a test rather than pulling an all-nighter.",
+        "It is more common that 'action creates motivation' rather than 'motivation creates action'.",
+        "Even if you don't look at smartphone notifications, they can still cause your concentration to drop.",
+        "When studying, practicing 'recalling' information stays in memory better than simply 'reading'.",
+        "Taking handwritten notes is said to make it easier to remember content compared to typing.",
+        "Soaking up morning sunlight makes it easier to reset and regulate your biological clock.",
+        "A short power nap of 15–20 minutes can help boost afternoon concentration.",
+        "When you feel nervous, people around you rarely notice it as much as you think.",
+        "Research shows that writing down your goals increases the completion rate.",
+        "People tend to remember the first and last things they see or hear most easily.",
+        "Thinking while walking can sometimes make it easier to come up with new ideas.",
+        "Studying with the intention of teaching others makes it easier to deepen your understanding.",
+        "The color blue is said to have an effect that promotes focus and concentration.",
+        "There is a mindset that people who think 'I can't do it yet' grow faster.",
+        "Just forming a smile can easily make your mood more positive.",
+        "People tend to take action more easily when there is a deadline.",
+        "Studying the same content spread out over multiple sessions makes it easier to remember.",
+        "Scents you like can help refresh your mood.",
+        "People tend to unleash their true potential more easily when cheered on by someone.",
+        "Posts on social media often feature happy events, making them look different from real life.",
+        "Having too many choices can actually make it harder for people to decide.",
+        "Expressing gratitude ('Thank you') is said to boost one's own sense of happiness.",
+        "Changing your study location can refresh your mood and make it easier to focus.",
+        "It is said that continuing a habit is harder for people than starting something new.",
+        "Exercise increases blood flow to the brain, which can lead to improved concentration.",
+        "Even if it is music you like, songs with lyrics can make it harder for some people to focus on studying.",
+        "People tend to remember their failures more vividly.",
+        "Just having fun plans scheduled can easily lift your mood.",
+        "It is believed that the brain organizes and consolidates memories during sleep.",
+        "Saying 'just 5 more minutes' on your phone turning into over 30 minutes is not uncommon.",
+        "First impressions are said to be formed within just a few seconds.",
+        "Simply calling someone by their name makes them feel more familiar and closer to you.",
+        "Studies show that correcting your posture can easily make your mood more positive.",
+        "Accumulating just 5 minutes a day adds up to over 30 hours in a year.",
+        "When you're nervous, taking long exhales helps you calm down.",
+        "People build confidence more easily by accumulating small wins.",
+        "It is easier to maintain consistency by finishing a task rather than aiming for perfection.",
+        "Spaced-repetition review helps memories stick better than cramming.",
+        "People get motivated more easily when they feel they made a choice by themselves.",
+        "Some people find it easier to memorize things while walking.",
+        "When your concentration breaks, standing up and moving a bit serves as a great reset.",
+        "Lack of hydration can lead to a drop in concentration.",
+        "People tend to feel that time passes faster during enjoyable events.",
+        "There is no clear standard for when it is 'too late' to start something new.",
+        "Reviewing material a little bit the next day leads to better memory retention than reviewing immediately after studying.",
+        "Laughter is said to have the effect of relieving stress.",
+        "Sharing goals with friends can sometimes make it easier to stay consistent.",
+        "Focusing on 'just giving it a try' leads to growth more than worrying about 'whether I can do it'.",
+        "Small daily habits can create a massive difference several months later.",
+        "Just listening to someone without interrupting gives them the impression that you are an 'easy person to talk to'.",
+        "Bread-eating races existed as far back as 130 years ago.",
+        "There was a referee in a soccer match who issued a red card to himself and left the pitch.",
+        "The fight songs of rival Japanese baseball teams, the Giants and Tigers, were composed by the same person.",
+        "Curling stones can only be produced on a single island in Scotland.",
+        "There is a national tournament for Yakyu-ken (strip rock-paper-scissors).",
+        "Official Kendo matches allow contestants to compete using a two-sword style (Nito-ryu)."
+],
+        zh: ["自動鉛筆芯的「H」代表 Hard（硬），「B」代表 Black（黑）。",
+        "日本最多的學校名稱是「第一小學校」。",
+        "黑板明明是綠色的卻叫「黑板」，是因為以前真的使用黑色的木板。",
+        "諺語「施惠不為人」（情けは人のためならず）的意思是「對人親切，善報最終會回到自己身上」。",
+        "世界上第一台自動販賣機販售的東西是「聖水」。",
+        "冰淇淋沒有保質期（因為在冷凍保存下品質不易變質）。",
+        "納豆在晚上吃比早上吃更能提升血液循環（清血）的效果。",
+        "把納豆放在熱騰騰的米飯上會降低納豆的營養效果。",
+        "刷牙時，牙刷不沾水能刷得更乾淨。",
+        "衣服上沾到的咖哩污漬，只要拿去曬太陽就能曬掉。",
+        "吃冷飯比吃熱飯更不容易發胖。",
+        "飯後喝一杯水可以抑制胃酸逆流。",
+        "喉嚨痛時吃棉花糖可以緩解疼痛。",
+        "手機充電不充到100%、維持在80%左右能延長電池壽命。",
+        "被蚊蟲叮咬時塗抹醋可以緩解癢感和發炎。",
+        "打嗝止不住時，用手指塞住雙耳比較容易止住。",
+        "洋芋片可以作為助燃劑使用。",
+        "頭痛一直好不了時，保暖手腳能讓症狀減輕。",
+        "做相同的運動，冬天比夏天消耗的卡路里更高。",
+        "嬰兒哭鬧不休時，播放反町隆史的《POISON》能讓他們停止哭泣。",
+        "連載初期，哆啦A夢喜歡的不是銅鑼燒而是年糕。",
+        "瑪利歐跳起來頂碎的磚塊，其實是被庫巴變成磚塊的蘑菇王國居民。",
+        "《海螺小姐》片尾曲使用的是第三段歌詞。",
+        "《海螺小姐》新年第一集的猜拳，連續30年都是出剪刀。",
+        "胖虎的名言「你的東西就是我的東西，我的東西還是我的東西」其實是一句英國諺語。",
+        "《鬼太郎》裡的眼珠老爹是閉著眼睛睡覺的。",
+        "Hello Kitty 的正式名字不是 Hello Kitty，而是「Kitty White」（凱蒂·懷特）。",
+        "《魔女宅急便》中的少年蜻蜓是暱稱，本名是「柯波利」（Kopori）。",
+        "《麵包超人》裡的起司（名犬起司）原本是細菌人的手下。",
+        "《蠟筆小新》中野原廣志的哥哥名字叫做「野原狹」（Nohara Semashi）。",
+        "瑪利歐的全名是「瑪利歐·瑪利歐」，路易吉的全名是「路易吉·瑪利歐」。",
+        "瑪利歐看似成熟但其實只有26歲，身高是155公分。",
+        "海螺小姐看似成熟但其實只有24歲。",
+        "鱈魚子（Tara-chan）有一個叫做「海星」（Hitode-chan）的妹妹。",
+        "波平（海螺小姐的父親）頭上的頭髮不只一根。",
+        "哆啦A夢平時是浮空3公釐運行的。",
+        "麵包超人頭裡的紅豆餡是帶皮紅豆粒餡（Tsubuan）。",
+        "古代奧林匹克運動會是以8年為週期舉辦的。",
+        "大相撲的行司（裁判）隨身攜帶短刀，是為了在判決錯誤時切腹謝罪。",
+        "花式滑冰最初是一項比拼在冰面上滑行所繪出圖形精確度的競技。",
+        "桌球拍在國際規則上，規定無論做多大都可以。",
+        "據說人類的專注力大約每90分鐘就容易中斷一次。",
+        "考試前與其熬夜，不如好好睡覺更能鞏固記憶。",
+        "與其「有了幹勁再開始」，更多時候是「開始做了才會產生幹勁」。",
+        "手機通知即使不去看，也可能會成為降低專注力的原因。",
+        "學習時，進行「回想」練習比單純「閱讀」更容易留下記憶。",
+        "用手寫做筆記據說比打字更容易記住內容。",
+        "曬曬早晨的太陽更容易調節生物鐘。",
+        "15〜20分鐘左右的午睡有助於提升下午的專注力。",
+        "越是緊張的時候，身邊的人其實越不容易察覺。",
+        "有研究顯示，把目標寫在紙上會提高達成率。",
+        "人更容易記住最先和最後看到或聽到的事物。",
+        "邊走邊思考有時更容易浮現新靈感。",
+        "以「要教給別人」的心態學習，更容易加深理解。",
+        "據說藍色具有給人容易集中精神的印象與效果。",
+        "有一種觀點認為，抱持著「我只是『還』不會」思考的人更容易成長。",
+        "光是做出笑臉，心情就更容易變得積極。",
+        "人在有「截止日期」時更容易採取行動。",
+        "同樣的內容，分成幾次分段學習更容易記住。",
+        "喜歡的香氣有助於轉換心情。",
+        "人在得到他人加油打氣時，更容易發揮出原本的實力。",
+        "社群媒體上記錄的多是快樂的事，看起來常與真實生活有所不同。",
+        "選項太多時，人反而更難做決定。",
+        "傳達「謝謝」據說也有助於提升自己的幸福感。",
+        "改變學習地點可以轉換心情，更容易集中精神。",
+        "據說比起開始做新事物，堅持下去對人來說更難。",
+        "運動會增加大腦的血流量，有助於提升專注力。",
+        "即使是喜歡的音樂，如果有歌詞的話，有些人也會難以集中精力學習。",
+        "人往往更容易記住失敗的事情。",
+        "光是有了令人期待的計畫，心情就更容易變得積極。",
+        "普遍認為大腦會在睡眠中整理和鞏固記憶。",
+        "說著「再看5分鐘」手機，最後超過30分鐘的情況並不罕見。",
+        "據說第一印象往往在幾秒鐘之內就決定了。",
+        "光是呼喚對方的名字，人就更容易產生親切感。",
+        "研究顯示，端正姿勢能讓心情也隨之變得積極。",
+        "每天積累5分鐘，一年下來就會超過30個小時。",
+        "緊張時長長地吐氣更容易冷靜下來。",
+        "人更容易透過積累小成功來建立自信。",
+        "與其追求完美，先完成目標更容易堅持下去。",
+        "拉開時間間隔進行複習更容易留下記憶。",
+        "人在認為是「自己選擇」的時候更容易產生動力。",
+        "有些人邊走邊背誦更容易記住。",
+        "專注力中斷時，站起來動一動身體能很好地轉換心情。",
+        "水分不足可能會導致專注力下降。",
+        "越是快樂的事情，人越容易覺得時間過得很快。",
+        "對於開始嘗試新事物，並沒有所謂「太遲」的明確標準。",
+        "比起剛學完馬上複習，隔天稍加複習更容易記住。",
+        "據說歡笑具有舒緩壓力的效果。",
+        "和朋友分享目標，有時能更容易堅持下去。",
+        "比起糾結「能不能做到」，先「試著做做看」更能帶來成長。",
+        "每天的小習慣，在幾個月後可能會帶來巨大的差距。",
+        "光是耐心把對方的話聽完，就容易給人留下「很好溝通/說話」的印象。",
+        "叼麵包競走早在130年前就已經存在了。",
+        "在足球比賽中，曾有裁判向自己出示紅牌並退場。",
+        "日本職棒宿敵「巨人」與「阪神」的應援歌是由同一位作曲家創作的。",
+        "冰壺運動用的冰壺石只能在蘇格蘭的一個島嶼上製造。",
+        "棒球拳（猜拳遊戲）設有全國大賽。",
+        "劍道的正式比賽中，選手是可以持「二刀流」參賽的。"
+]
+    };
+
+    const bingoData = {
+        ja: ["授業中に寝た人を見た",
+                    "先生が雑談を始めた",
+                    "チャイムギリギリで登校",
+                    "購買でお目当てが売り切れ",
+                    "提出物の期限を忘れる",
+                    "スマホが鳴ってヒヤッとした",
+                    "宿題やったけど家に忘れた",
+                    "次の教室が分からなくなる",
+                    "なんでもできる超人なクラスメートがいる",
+                    "常にスマホの画面バキバキ",
+                    "先生のモノマネがプロ級に上手な人",
+                    "授業中、独り言が大きい人",
+                    "誰とでも仲良くなれるコミュ力の塊な人",
+                    "前髪のセットに命をかけている人",
+                    "カバンが見えないくらいキーホルダーが多い人",
+                    "テスト前に「勉強してない」",
+                    "何回も同じ数字がきて不安になる",
+                    "月曜日、朝から「早く週末にならないかな」と口にしがち", 
+                    "テスト前日に部屋の大掃除を始めてしまう", 
+                    "授業中、1回も目を合わせないように先生の動きを監視する", 
+                    "席替えで窓際の1番後ろの席になったときの無敵感", 
+                    "金曜日の放課後の解放感が異常に高い",
+                    "黒板をスマホで写真撮るだけで勉強した気になってしまう", 
+                    "イヤホンの片方を友達に貸して音楽を聴くシチュエーションに憧れる", 
+                    "提出物、友達に見せてもらいながら写すときの驚異的な集中力", 
+                    "テスト中、残り時間あと5分のチャイムで急に焦り出す", 
+                    "「次の時間、自習だって！」という噂の広まり方の速さ", 
+                    "雨の日の自転車通学が修行レベルでキツい",
+                    "学校でもらうプリントが多すぎてカバンの底でぐしゃぐしゃになる", 
+                    "体育の授業の後、教室が制汗剤の匂いで満たされる",
+                    "先生のちょっとしたプライベートを詮索しがち", 
+                    "お弁当を開けた瞬間に友達からおかずを奪われそうになる", 
+                    "「今日の時間割、何だっけ？」を1日に3回は聞く", 
+                    "テストの点数を隠しながら「何点だった？」と聞き合う", 
+                    "冬の制服の上に着るマフラーの着こなしにこだわる", 
+                    "「今日の先生、機嫌悪くない？」とクラスで情報共有される", 
+                    "シャーペンの芯が切れて、隣の人に「芯1本ちょうだい」と頼む",
+                    "学年集会で校長先生の話が長すぎて、みんなの意識が遠のく", 
+                    "「この教科、将来何に使うんだろう…」と授業中にふと考えてしまう", 
+                    "土日の部活が朝早すぎて、平日の登校時間より早い", 
+                    "長期休みが終わる直前に「まだ宿題半分も終わってない」と大騒ぎする",
+                    "クラスに1人は、どんな天気でも毎日半袖の元気なやつがいる",
+                    "朝のバスや電車が遅れて遅延証明書をもらいがち", 
+                    "「〜ちゃん」「〜けん」を無意識に使いすぎて他県民に驚かれる",
+                    "体育祭の「ブロック」にかける熱量が日本一高い",
+                    "「ちかっぱ」を使いこなしクラスに一人いる", 
+                    "「なおす（片付ける）」が標準語だと思っていて他県で通じず焦る", 
+                    "「からう（背負う）」が方言だと知ったときの衝撃",
+                    "チャリ通（自転車通学）の坂道が急すぎて毎朝がトレーニング", 
+                    "「さん、はい」ではなく「さんのーがーはい」でタイミングを合わせる", 
+                    "「はわく（掃く）」という言葉が掃除の時間に飛び交う"
+],
+        en: ["Saw someone sleeping in class",
+                    "Teacher started making small talk",
+                    "Arrived at school just before the chime",
+                    "My target item was sold out at the school shop",
+                    "Forgot the deadline for an assignment",
+                    "My heart skipped a beat when a phone went off",
+                    "Did the homework but left it at home",
+                    "Got lost trying to find the next classroom",
+                    "There is an all-rounder super student in class",
+                    "Someone whose phone screen is always cracked",
+                    "Someone who does pro-level impressions of the teachers",
+                    "Someone who talks to themselves out loud during class",
+                    "An ultra-social social butterfly who gets along with everyone",
+                    "Someone who takes styling their bangs way too seriously",
+                    "Someone with so many keychains you can't even see their bag",
+                    "Saying \"I didn't study at all\" right before an exam",
+                    "Getting anxious after getting the same number multiple times on a test",
+                    "Starting a deep clean of my room the night before an exam",
+                    "Monitoring the teacher's movements to avoid eye contact at all costs",
+                    "Feeling like I studied just by taking a photo of the blackboard",
+                    "Showing superhuman focus when copying a friend's homework",
+                    "Panicking when the 5-minutes-remaining chime rings during a test",
+                    "The insane speed at which the \"next period is self-study!\" rumor spreads",
+                    "Wondering \"what will I ever use this subject for in the future?\" during class",
+                    "Asking \"what did you get?\" while hiding my own test score",
+                    "Saying \"I wish it was the weekend already\" on Monday morning",
+                    "Feeling invincible after getting the back row window seat in seat-changing",
+                    "The feeling of absolute freedom on Friday after school is unmatched",
+                    "Wishing for that moment where you share one side of your earphones with a friend",
+                    "Getting so many school printouts that they end up crushed at the bottom of my bag",
+                    "The classroom smelling heavily of deodorant spray after PE class",
+                    "Trying to dig into the teacher's private life (like their love life or marital status)",
+                    "Friends targeting my side dishes the second I open my lunch box",
+                    "Asking \"what is today's schedule again?\" at least three times a day",
+                    "Being super particular about how to style a scarf over the winter uniform",
+                    "Classmates whispering \"is the teacher in a bad mood today?\" to share info",
+                    "Running out of mechanical pencil lead and asking a neighbor for a spare",
+                    "Everyone's soul leaving their body because the principal's speech at the assembly is too long",
+                    "Wondering \"how is this useful\" in class",
+                    "Weekend club activities starting so early that it's earlier than weekday school hours",
+                    "Panicking right before vacation ends because \"not even half the homework is done\"",
+                    "There's always that one hyper classmate who wears short sleeves in any weather",
+                    "Often getting a train/bus delay certificate because of morning transit delays",
+                    "Commuting by bicycle in the rain feels like rigorous training",
+                    "The hills on my bike commute are so steep every morning is a workout",
+                    "Our passion for the sports festival \"blocks\" is the highest in Japan",
+                    "Using local sentence endings like \"...chan\" or \"...ken\" so naturally that outsiders get surprised",
+                    "There is always one person in class who uses the slang \"chikappa\" flawlessly",
+                    "Panicking when \"naosu\" (meaning to clean up) doesn't make sense to people from other prefectures",
+                    "The pure shock of finding out that \"karau\" (to backpack/carry) is a dialect word",
+                    "Matching timing by saying \"san-no-ga-hai\" instead of just \"san, hai\"",
+                    "The dialect word \"hawaku\" (to sweep) flying around everywhere during cleaning time"
+],
+        zh: ["看到有人在课上睡觉",
+                    "老师开始闲聊",
+                    "踩着上课铃声进教室",
+                    "想买的小卖部商品卖完了",
+                    "忘记交作业的截止日期",
+                    "手机突然响了吓一跳",
+                    "写了作业但忘在家里了",
+                    "不知道下一个教室在哪里",
+                    "班里有个无所不能的神仙同学",
+                    "手机屏幕永远是碎的",
+                    "模仿老师达到专业水平的人",
+                    "上课时自言自语声音很大的人",
+                    "社交天花板，和谁都能聊",
+                    "把生命奉献给整理刘海的人",
+                    "包包上挂满挂件到看不见包",
+                    "考试前说“我根本没复习”",
+                    "多次遇到相同的数字感到不安",
+                    "周一早上就开始念叨“怎么还不周末”", 
+                    "考试前一天晚上开始大扫除", 
+                    "为了不跟老师对视而死死盯着老师", 
+                    "换座位换到靠窗最后一排的无敌感", 
+                    "周五放学后的解放感异常强烈",
+                    "用手机拍了黑板就觉得自己学过了", 
+                    "憧憬和朋友一人戴一只耳机听歌", 
+                    "抄朋友作业时爆发的惊人专注力", 
+                    "考试剩最后5分钟时突然开始慌张", 
+                    "“下节自习！”这种传言的传播速度", 
+                    "下雨天骑车上学像是在修行",
+                    "学校发的讲义太多，在包底揉成一团", 
+                    "体育课后的教室里弥漫着防汗喷雾味",
+                    "喜欢八卦老师的一点点私生活", 
+                    "一打开便当，配菜差点被朋友抢走", 
+                    "一天要问三次“今天上什么课”", 
+                    "一边遮着自己的分数一边问别人几分", 
+                    "对冬天制服外围的围巾系法很讲究", 
+                    "班里共享“今天老师心情不好”的情报", 
+                    "自动铅笔没芯了，找同桌借一根",
+                    "年级大会上校长讲话太长，大家灵魂出窍", 
+                    "上课时突然想“这门课以后有什么用”", 
+                    "周末社团活动太早，比平时上学还早", 
+                    "假期快结束时大喊“我作业还没写一半”",
+                    "班里总有一个无论什么天气都穿短袖的",
+                    "早上公交地铁经常迟到，拿到延迟证明", 
+                    "无意识狂用方言口音把外县人吓一跳",
+                    "体育祭对“红蓝阵营”的热情全日本第一",
+                    "班里总有人能把方言土话用得很溜", 
+                    "以为方言是标准语，在外地用行不通", 
+                    "得知自己常说的方言其实别人听不懂的震惊",
+                    "骑车上学的斜坡太陡，每天早上像训练", 
+                    "不用普通拍子，用地方特有节奏合拍", 
+                    "大扫除时间到处飞扬着地方清洁方言"
+]
+    };
+
+const horoscopeTranslations = {
+        ja: {
+            title: "🔮 デイリー 12星座占いランキング",
+            signs: [
+                { key: "aries", name: "牡羊座 ♈" }, { key: "taurus", name: "牡牛座 ♉" }, { key: "gemini", name: "双子座 ♊" },
+                { key: "cancer", name: "蟹座 ♋" }, { key: "leo", name: "獅子座 ♌" }, { key: "virgo", name: "乙女座 ♍" },
+                { key: "libra", name: "天秤座 ♎" }, { key: "scorpio", name: "蠍座 ♏" }, { key: "sagittarius", name: "射手座 ♐" },
+                { key: "capricorn", name: "山羊座 ♑" }, { key: "aquarius", name: "水瓶座 ♒" }, { key: "pisces", name: "魚座 ♓" }
+            ],
+            prompts: [
+                "超ラッキー！購買のお目当てが買えそう。勉強も捗る最高の日！",
+                "全体運高め。友達からの不意な一言にハッピーなヒントがありそう。",
+                "順調な一日。落とし物に気をつければ、気持ちよく過ごせそう。",
+                "普通の運勢。授業の前に少し復習すると自信につながるかも。",
+                "ちょっと一息。焦らずマイペースに過ごすと忘れ物を防げそう。",
+                "要注意デー！スマホを見すぎると時間があっという間に過ぎそう。",
+                "運気は上昇中！笑顔であいさつするといい流れがやってくる予感。",
+                "今日は小さな挑戦が大きな自信につながる日。",
+                "友達との会話にラッキーのヒントが隠れているかも。",
+                "勉強運好調！5分だけでも机に向かうと集中できそう。",
+                "恋愛運アップ。自然な笑顔があなたの魅力を引き出します。",
+                "今日は『ありがとう』を伝えると運気アップ！",
+                "いつもより少し早めの行動が幸運を引き寄せそう。",
+                "周りをよく見ると嬉しい発見がある一日。",
+                "運気は安定中。無理をせず自然体で過ごそう。",
+                "今日は友達と協力するといい結果につながりそう。",
+                "ラッキーデー！思い切ってチャレンジすると成功するかも。",
+                "焦らなくても大丈夫。一歩ずつ進めば十分です。",
+                "何気ない出来事が今日一番の思い出になりそう。",
+                "好きなことに触れると気分も運気もアップ！",
+                "今日は周りへの気配りが幸運を呼び込みます。",
+                "いつもより丁寧に取り組むと嬉しい結果になりそう。",
+                "運気はゆるやかに上昇中。自分を信じて進もう！",
+                "今日は素直な気持ちが幸運のカギ。",
+                "休憩をうまく取ると集中力が戻ってきそう。",
+                "ラッキーな偶然が起こるかもしれない一日！",
+                "気分転換すると新しいアイデアが浮かびそう。",
+                "今日は周りの優しさに助けられる予感。",
+                "一歩踏み出す勇気がチャンスを引き寄せます。",
+                "勉強運はコツコツ型。積み重ねが力になりそう。",
+                "友達運絶好調！たくさん笑える一日になりそう。",
+                "今日はお気に入りの文房具を使うとやる気アップ！",
+                "人の話を最後まで聞くと新しい発見があるかも。",
+                "運気は穏やか。自分のペースを大切にしよう。",
+                "今日はちょっとだけ冒険してみると面白いことがありそう。",
+                "いつもより周りを見渡すとラッキーが見つかるかも。",
+                "今日は笑顔が最高のラッキーアイテム。",
+                "小さな目標を達成すると達成感いっぱいの一日に。",
+                "恋愛運はゆっくり上昇中。自然体が一番の魅力です。",
+                "今日は自分を褒めてあげる時間も忘れずに。",
+                "要注意デー！急いでいると小さなミスが増えそう。",
+                "今日は落ち着いて確認すると安心して過ごせそう。",
+                "運気はまずまず。焦らず進めばきっと大丈夫！",
+                "ちょっとした親切が思わぬ幸運を運んできそう。",
+                "今日は深呼吸すると気持ちもスッキリ！",
+                "友達との何気ない時間が最高の思い出になる予感。",
+                "ラッキーは意外とすぐ近くにあるかも。",
+                "今日は前向きな言葉を口にすると運気アップ！",
+                "最後まであきらめなければ嬉しい結果につながりそう。",
+                "今日もあなたらしく過ごせば、それだけで十分素敵な一日です。",
+                "超ラッキー！ずっと気になっていたことがいい方向へ進みそう！",
+                "今日は運気絶好調！思い切った行動がいい結果につながる予感。",
+                "友達との何気ない会話が今日一番のラッキーイベントになるかも。",
+                "勉強運アップ！難しい問題も落ち着けば解けそう。",
+                "今日は好きな音楽を聴くと気分も運気もアップ！",
+                "全体運は安定。無理せず自然体で過ごそう。",
+                "今日は小さな努力が大きな成果につながりそう。",
+                "気になることは今日のうちに片付けるとスッキリ！",
+                "ちょっとした笑い話が一日を明るくしてくれそう。",
+                "今日は新しい発見があるかもしれない一日。",
+                "恋愛運上昇中。いつも通りの笑顔が一番の魅力。",
+                "ラッキーは意外と近くに。周りをよく見てみよう！",
+                "今日は早めの行動が余裕を生みそう。",
+                "焦らず進めば自然といい流れになります。",
+                "友達運好調！協力するといいことがありそう。",
+                "今日は好きなお菓子で気分転換すると◎。",
+                "一つずつ丁寧に取り組むことが成功への近道。",
+                "周りの人の優しさに気づける一日になりそう。",
+                "今日は『大丈夫！』と自分に言ってあげよう。",
+                "小さな親切が思わぬ幸運を呼び込みます。",
+                "運気は上向き。新しいことに挑戦するチャンス！",
+                "今日は話を聞く側になるといい発見がありそう。",
+                "笑顔でいるだけで周りも笑顔になりそう。",
+                "勉強は短時間集中が成功のポイント。",
+                "今日は好きな教科から始めるとやる気アップ！",
+                "友達と過ごす時間がパワーチャージになりそう。",
+                "今日は気になっていた人と話せるチャンスがあるかも。",
+                "落ち着いて行動すると失敗を防げそう。",
+                "今日は忘れ物チェックをいつもより丁寧に。",
+                "何気ない偶然がうれしい出来事につながる予感。",
+                "運気はゆっくり回復中。焦らなくて大丈夫！",
+                "今日は自分のペースを大切にすると◎。",
+                "小さな成功を積み重ねる一日にしよう！",
+                "今日は前向きな一言が運気アップのカギ。",
+                "周りをよく見ると面白い発見がありそう。",
+                "気分転換をすると新しいアイデアが浮かびそう。",
+                "今日は誰かに感謝を伝えるとハッピーな気分に。",
+                "友達からの一言が背中を押してくれるかも。",
+                "今日はゆっくり深呼吸すると落ち着けそう。",
+                "笑顔であいさつするといい流れが始まります。",
+                "要注意デー！後回しにすると少し大変になるかも。",
+                "今日は時間に余裕を持つと安心して過ごせそう。",
+                "疲れたら無理せず休憩することも大切。",
+                "今日は身の回りを整理すると運気アップ！",
+                "焦らなくてもあなたの努力はちゃんと積み重なっています。",
+                "今日はラッキーなタイミングが訪れる予感。",
+                "気持ちを切り替えると運気もリセット！",
+                "今日は挑戦することに意味がある一日。",
+                "最後はきっとうまくいくと信じて進もう！",
+                "今日もあなたらしい笑顔が一番のラッキーアイテムです。",
+                "超ラッキー！今日は思いがけないうれしい出来事が待っているかも！",
+                "運気は絶好調！迷ったらチャレンジするほうを選んでみよう。",
+                "今日は普段話さない人との会話が新しいきっかけになりそう。",
+                "何気なく選んだものが今日の正解になる予感。",
+                "勉強運アップ！苦手な教科に少しだけ挑戦すると◎。",
+                "今日はメモを取ると後で役立つ場面がありそう。",
+                "全体運は好調！前向きな言葉を使うとさらに運気アップ。",
+                "笑顔でいると自然と人が集まってきそう。",
+                "今日は好きな飲み物を選ぶと気分もリフレッシュ！",
+                "小さな目標を立てると達成感を味わえそう。",
+                "今日は周りをよく観察すると面白い発見がありそう。",
+                "ラッキーは意外なところからやってきます。",
+                "今日は友達との協力が成功のポイント。",
+                "恋愛運は上昇中。自然な会話を楽しんでみよう。",
+                "今日は新しい文房具を使うとやる気アップ！",
+                "一歩引いて考えることでいい答えが見つかりそう。",
+                "今日は気になることを調べると知識が増える日。",
+                "頑張りすぎず、肩の力を抜くことも大切。",
+                "今日は好きなことに時間を使うと運気アップ。",
+                "友達との笑い声が今日一番のラッキーになりそう。",
+                "今日はゆっくり確認することでミスを防げます。",
+                "運気は安定中。焦らず進めば大丈夫！",
+                "今日は周りへの気遣いが自分にも返ってきそう。",
+                "好きな景色を見ると気分転換になりそう。",
+                "今日は少しだけ早起きするといいことがあるかも。",
+                "何気ない一言が誰かを笑顔にできそう。",
+                "今日は素直な気持ちでいることが開運ポイント。",
+                "ラッキーな偶然が重なる一日になる予感。",
+                "今日は机の上をきれいにすると集中できそう。",
+                "勉強は短時間でもしっかり成果が出そう。",
+                "今日は気になる本を開くと面白い発見があるかも。",
+                "友達運好調！いつも以上に盛り上がれそう。",
+                "今日は周りの人から元気をもらえる日。",
+                "小さな成功を喜ぶと運気も上向きに。",
+                "今日はお気に入りの服や小物で気分アップ！",
+                "何かを始めるにはぴったりのタイミング。",
+                "今日は笑顔が一番のラッキーチャーム。",
+                "無理せず自分らしく過ごすことが一番。",
+                "今日は『ありがとう』をたくさん伝えてみよう。",
+                "やるべきことを先に終わらせると気持ちが軽くなりそう。",
+                "要注意デー！急ぎすぎると見落としが増えるかも。",
+                "今日は周りと比べず、自分のペースで進もう。",
+                "忘れ物チェックをすると安心して一日を過ごせそう。",
+                "今日は休憩時間を上手に使うと集中力アップ！",
+                "気持ちを切り替えると運気も切り替わりそう。",
+                "今日は誰かの優しさに助けられる予感。",
+                "前向きな気持ちが今日一日の運勢を変えてくれます。",
+                "今日は最後まであきらめないことが成功のカギ。",
+                "一日を楽しもうという気持ちが最高のラッキーアクション！",
+                "今日の小さな一歩が、未来の大きな一歩につながります。",
+                "超ラッキー！今日はタイミングの良さが味方してくれる一日になりそう！",
+                "運気は右肩上がり！思い切って行動すると嬉しい展開があるかも。",
+                "今日は何気なく選んだ席や場所がラッキースポットになる予感。",
+                "全体運好調！小さなことでも最後までやり切ると達成感を味わえそう。",
+                "今日は友達との笑いが元気の源になりそう。",
+                "勉強運アップ！集中できる時間が意外と長く続きそうです。",
+                "今日はいつもより落ち着いて行動できそう。",
+                "気になることに挑戦すると新しい自分を発見できるかも。",
+                "今日は好きな教科にツキがありそう。",
+                "友達との協力で思った以上に物事がスムーズに進みそう。",
+                "今日は少し遠回りしてみると面白い発見があるかも。",
+                "ラッキーな偶然が重なって気分も上向きに。",
+                "今日は普段より素直な気持ちで過ごせそう。",
+                "運気は安定。コツコツ頑張るほど結果につながります。",
+                "今日はお気に入りの曲を聴くとやる気アップ！",
+                "笑顔で過ごすだけで周りの雰囲気も明るくなりそう。",
+                "今日は何か一つ新しいことを覚えるチャンス。",
+                "恋愛運はゆっくり上昇中。焦らず自然体が一番です。",
+                "今日は少しだけ勇気を出すといいことがありそう。",
+                "勉強は『あとで』より『今』がラッキー。",
+                "今日は身近な人の言葉がヒントになりそう。",
+                "気分転換をすると新しいアイデアが浮かびそう。",
+                "今日は周りをよく見ると小さな幸せに気づけそう。",
+                "努力してきたことが少しずつ形になり始める予感。",
+                "今日は何気ない一言が誰かを笑顔にしそう。",
+                "ラッキーはいつもの場所に隠れているかもしれません。",
+                "今日は好きなことを思い切り楽しむと◎。",
+                "周りと比べるより昨日の自分と比べてみよう。",
+                "今日は一歩引いて考えるといい答えが見つかりそう。",
+                "友達運好調！一緒にいる時間が最高の思い出になりそう。",
+                "今日は少し早めの準備が安心につながります。",
+                "何気なく始めたことが意外と長続きするかも。",
+                "今日は自分からあいさつすると運気アップ！",
+                "好きなものを身近に置くと気分も前向きに。",
+                "今日は小さなチャレンジが成功につながる予感。",
+                "気になることはその日のうちに解決するとスッキリ。",
+                "今日は周りの人への気配りが運気アップのポイント。",
+                "運気はのんびりモード。焦らないことが一番。",
+                "今日はラッキーな情報が耳に入りそう。",
+                "小さな積み重ねが未来の自分を助けてくれます。",
+                "要注意デー！思い込みで行動すると勘違いしてしまうかも。",
+                "今日は忘れ物をする前にもう一度バッグをチェック！",
+                "無理をしすぎず、自分をいたわる時間も大切です。",
+                "今日は疲れたら少し休憩する勇気も必要。",
+                "焦らず確認するとミスを防げそう。",
+                "今日は笑顔を忘れなければきっと大丈夫。",
+                "最後までやり切ることで自信につながる一日です。",
+                "今日は『なんとかなる！』を合言葉に過ごしてみよう。",
+                "運気は回復中！昨日より少し前に進めれば十分です。",
+                "今日という一日を楽しむことが一番の開運アクション！",
+                "超ラッキー！今日は探していたものが意外な場所から見つかるかも！",
+                "運気は絶好調！今日は『なんとなく』の直感を信じてみよう。",
+                "朝のスタートが順調だと、そのまま一日いい流れで過ごせそう。",
+                "今日は周りの人からうれしい言葉をもらえる予感。",
+                "勉強運好調！昨日より少しだけ集中できそう。",
+                "今日は笑う回数が多いほど運気もアップ！",
+                "友達との予定がさらに楽しくなりそうな一日。",
+                "今日は小さなラッキーが何度も訪れる予感。",
+                "気になっていたことに挑戦するベストタイミング！",
+                "今日は新しい発想が浮かびやすい日になりそう。",
+                "周りを見渡すと役立つヒントが見つかるかも。",
+                "今日はゆっくり話すことで相手に気持ちが伝わりそう。",
+                "運気は安定。丁寧な行動が幸運につながります。",
+                "今日は好きな飲み物でリフレッシュすると◎。",
+                "何気ない出来事が今日の思い出ランキング1位になりそう。",
+                "今日は自分から話しかけると楽しい時間が増える予感。",
+                "恋愛運アップ！自然体のあなたが一番魅力的。",
+                "今日は周りから頼られる場面がありそう。",
+                "一つのことに集中すると予想以上に進みそう。",
+                "今日は『ありがとう』を伝えるチャンスがたくさん。",
+                "少しだけ早めに行動すると余裕が生まれそう。",
+                "今日は人のいいところを見つけられる一日。",
+                "運気はじわじわ上昇中。焦らなくても大丈夫。",
+                "今日は好きな色を身につけると気分アップ。",
+                "何気なく始めたことが意外と楽しく続きそう。",
+                "今日は目の前のことを大切にすると運気アップ。",
+                "勉強は復習から始めるとスムーズに進みそう。",
+                "今日は友達と協力するといい結果につながる予感。",
+                "小さな達成感を積み重ねることが今日のテーマ。",
+                "今日は気分転換が最高のラッキーアクション。",
+                "運気は穏やか。落ち着いた行動が成功のポイント。",
+                "今日は前向きな人と話すと元気をもらえそう。",
+                "少し遠回りしても結果的にはいい方向へ進みそう。",
+                "今日は誰かの優しさにほっこりできる一日。",
+                "思い切って質問すると新しい発見があるかも。",
+                "今日は自分の得意なことを活かせそう。",
+                "周りをよく見ると小さな幸せがたくさん見つかります。",
+                "今日は最後まで丁寧に取り組むと満足できそう。",
+                "運気アップ！笑顔が今日一番のラッキーアイテム。",
+                "今日は一歩踏み出す勇気が未来につながります。",
+                "要注意デー！うっかり勘違いしやすいので確認を忘れずに。",
+                "今日は急ぎすぎず、落ち着いて行動すると安心。",
+                "疲れを感じたら無理せず休憩してリフレッシュ！",
+                "今日は身の回りを整えると気持ちもスッキリ。",
+                "忘れ物防止のために出かける前の最終チェックを！",
+                "今日は人と比べるより、自分の成長を見つけてみよう。",
+                "昨日できなかったことが今年は意外とうまくいくかも。",
+                "運気は回復モード。少しずつ流れが変わり始めそう。",
+                "今日はポジティブな言葉が幸運を引き寄せます。",
+                "今日の小さなチャレンジが、未来の大きな自信になります。"
+            ],
+            luckyItems: ["本", "青いペン", "温かいお茶", "スニーカー", "ノート", "観葉植物", 
+    "腕時計", "お守り", "地図", "コーヒー", "ヘッドホン", "アロマ",
+    "マグカップ", "エコバッグ", "消しゴム", "ステッカー", "ハンカチ", "水筒",
+    "付箋", "キーホルダー", "クリアファイル", "ブックマーク", "クリップ", "カレンダー",
+    "ハンドクリーム", "メガネ", "シャープペンシル", "定規", "ポーチ", "トートバッグ",
+    "パスケース", "スマートフォン", "イヤホン", "タンブラー", "タオル", "キャップ",
+    "スカーフ", "パーカー", "リュック", "ブレスレット", "リング", "ネックレス",
+    "スプーン", "フォーク", "お皿", "グラス", "キャンドル", "ランプ",
+    "クッション", "ブランケット", "ポスター", "ポストカード", "写真立て", "シール",
+    "マスキングテープ", "ハサミ", "ホッチキス", "ペンケース", "バッグ", "財布",
+    "傘", "レインコート", "サングラス", "帽子", "スリッパ", "靴下",
+    "手帳", "カレンダー", "アルバム", "アルバム", "色鉛筆", "絵の具",
+    "スケッチブック", "キャンバス", "パレット", "筆", "万年筆", "ボールペン",
+    "蛍光ペン", "修正液", "カッター", "のり", "テープ", "コンパス",
+    "分度器", "電卓", "辞書", "教科書", "参考書", "問題集",
+    "新聞", "雑誌", "パンフレット", "チケット", "切符", "カード",
+    "コイン", "メダル", "トロフィー", "バッジ", "リボン", "風船"],
+            luckyItem: "📍 ラッキーアイテム: "
+        },
+        en: {
+            title: "🔮 Daily 12 Zodiac Horoscope Rankings",
+            signs: [
+                { key: "aries", name: "Aries ♈" }, { key: "taurus", name: "Taurus ♉" }, { key: "gemini", name: "Gemini ♊" },
+                { key: "cancer", name: "Cancer ♋" }, { key: "leo", name: "Leo ♌" }, { key: "virgo", name: "Virgo ♍" },
+                { key: "libra", name: "Libra ♎" }, { key: "scorpio", name: "Scorpio ♏" }, { key: "sagittarius", name: "Sagittarius ♐" },
+                { key: "capricorn", name: "Capricorn ♑" }, { key: "aquarius", name: "Aquarius ♒" }, { key: "pisces", name: "Pisces ♓" }
+            ],
+            prompts: [
+                "Super lucky! You'll likely be able to get what you wanted at the school store. A fantastic day where your studies will also go smoothly!",
+                "Overall luck is high. An unexpected remark from a friend might hold a happy hint.",
+                "A smooth day. If you watch out for lost items, you'll be able to spend it pleasantly.",
+                "Average luck. Doing a little review before class might lead to more confidence.",
+                "Take a short breather. Moving at your own pace without rushing will help prevent you from leaving things behind.",
+                "Caution day! Staring at your phone too much will make time fly by in an instant.",
+                "Luck is on the rise! Greeting others with a smile gives a feeling that a good flow is coming your way.",
+                "Today is a day where small challenges lead to big confidence.",
+                "Hints of luck might be hidden in your conversations with friends.",
+                "Study luck is looking good! Sitting at your desk for even just 5 minutes will help you focus.",
+                "Romance luck is up. Your natural smile will bring out your charm.",
+                "Expressing 'Thank you' today boosts your luck!",
+                "Acting a little earlier than usual will likely attract good fortune.",
+                "A day where taking a good look around will lead to delightful discoveries.",
+                "Luck is stable. Don't push yourself and just be natural.",
+                "Cooperating with friends today will likely lead to good results.",
+                "A lucky day! Taking a bold challenge might lead to success.",
+                "No need to rush. Moving forward step-by-step is more than enough.",
+                "A casual event will likely become your favorite memory of the day.",
+                "Engaging with things you love boosts both your mood and your luck!",
+                "Being considerate of those around you today will invite good fortune.",
+                "Tackling things a bit more carefully than usual will likely yield happy results.",
+                "Luck is rising steadily. Believe in yourself and keep moving forward!",
+                "An honest heart is the key to good fortune today.",
+                "Taking well-timed breaks will likely bring your concentration back.",
+                "A day where lucky coincidences might happen!",
+                "Refreshing your mind will likely spark new ideas.",
+                "A hunch that you'll be helped by the kindness of those around you today.",
+                "The courage to take a step forward attracts opportunities.",
+                "Study luck favors steady work. Building it up will likely become your strength.",
+                "Friend luck is fantastic! It looks like a day where you'll laugh a lot.",
+                "Using your favorite stationery today boosts your motivation!",
+                "Listening to people all the way to the end might lead to new discoveries.",
+                "Luck is calm. Cherish your own pace.",
+                "Trying a little bit of adventure today will likely lead to something interesting.",
+                "Looking around more than usual might help you find some luck.",
+                "Smiles are your best lucky item today.",
+                "Achieving small goals will make your day full of a sense of accomplishment.",
+                "Romance luck is slowly rising. Being your natural self is your greatest charm.",
+                "Don't forget to take time to praise yourself today.",
+                "Caution day! Rushing is likely to increase small mistakes.",
+                "Checking things calmly today will let you spend the day with peace of mind.",
+                "Luck is fair. If you move forward without rushing, you'll definitely be fine!",
+                "A small act of kindness will likely bring unexpected good fortune.",
+                "Taking a deep breath today will clear your mind!",
+                "A hunch that casual moments with friends will become your best memories.",
+                "Luck might be unexpectedly close by.",
+                "Speaking positive words today boosts your luck!",
+                "Not giving up until the end will likely lead to happy results.",
+                "If you just spend today being yourself, that alone makes it a wonderful enough day.",
+                "Super lucky! Something you've been wondering about for a while is likely to move in a good direction!",
+                "Luck is in peak condition today! A hunch that bold actions will lead to good results.",
+                "Casual conversation with friends might turn out to be your luckiest event of the day.",
+                "Study luck is up! Even difficult problems can be solved if you stay calm.",
+                "Listening to your favorite music today boosts both your mood and your luck!",
+                "Overall luck is stable. Don't push yourself and spend the day naturally.",
+                "Small efforts today will likely lead to big achievements.",
+                "Clearing up things that bother you within today will feel refreshing!",
+                "A small funny story will likely brighten up your entire day.",
+                "A day where you might make new discoveries.",
+                "Romance luck is on the rise. Your usual smile is your best charm.",
+                "Luck is unexpectedly close. Let's take a good look around!",
+                "Acting early today will likely create a sense of ease.",
+                "No need to rush. A good flow will happen naturally.",
+                "Friend luck is good! Cooperating might bring good things.",
+                "Refreshing your mood with your favorite sweets today is great!",
+                "Tackling things carefully one by one is a shortcut to success.",
+                "It looks like a day where you'll notice the kindness of the people around you.",
+                "Tell yourself 'It's going to be okay!' today.",
+                "Small kindnesses invite unexpected good fortune.",
+                "Luck is heading upwards. A chance to try something new!",
+                "Being the one who listens today will likely lead to good discoveries.",
+                "Just by smiling, those around you will likely smile too.",
+                "Short bursts of focused studying are the key to success.",
+                "Starting with your favorite subject today boosts your motivation!",
+                "Spending time with friends will likely recharge your energy.",
+                "You might have a chance to talk to someone you've been interested in today.",
+                "Acting calmly will help you prevent mistakes.",
+                "Check for forgotten items a bit more carefully than usual today.",
+                "A hunch that casual coincidences will lead to delightful events.",
+                "Luck is slowly recovering. No need to rush!",
+                "Cherishing your own pace today is great!",
+                "Let's make today a day of piling up small successes!",
+                "A positive word today is the key to boosting your luck.",
+                "Looking around closely will likely lead to interesting discoveries.",
+                "Changing your mindset will likely bring up new ideas.",
+                "Expressing gratitude to someone today will put you in a happy mood.",
+                "A word from a friend might give you the push you need.",
+                "Taking a slow, deep breath today will help you calm down.",
+                "Greeting with a smile starts a good flow.",
+                "Caution day! Leaving things for later might make things a bit difficult.",
+                "Having extra time today will let you spend it with peace of mind.",
+                "When you're tired, it's also important to take a break without pushing yourself.",
+                "Tidying up your surroundings today boosts your luck!",
+                "Even if you don't rush, your efforts are steadily piling up.",
+                "A hunch that lucky timing will visit you today.",
+                "Changing your mindset resets your luck too!",
+                "A day where the act of taking on a challenge holds meaning.",
+                "Believe that everything will work out fine in the end and keep moving forward!",
+                "Your own unique smile is your number one lucky item today too."
+            ],
+            luckyItems: ["Book", "Blue Pen", "Warm Tea", "Sneakers", "Notebook", "Houseplant",
+    "Wristwatch", "Charm", "Map", "Coffee", "Headphones", "Aroma Oil",
+    "Mug", "Eco Bag", "Eraser", "Sticker", "Handkerchief", "Water Bottle",
+    "Sticky Notes", "Keychain", "Clear File", "Bookmark", "Paperclip", "Calendar",
+    "Hand Cream", "Glasses", "Mechanical Pencil", "Ruler", "Pouch", "Tote Bag",
+    "Pass Case", "Smartphone", "Earphones", "Tumbler", "Towel", "Cap",
+    "Scarf", "Hoodie", "Backpack", "Bracelet", "Ring", "Necklace",
+    "Spoon", "Fork", "Plate", "Glass", "Candle", "Lamp",
+    "Cushion", "Blanket", "Poster", "Postcard", "Photo Frame", "Seal",
+    "Washi Tape", "Scissors", "Stapler", "Pencil Case", "Bag", "Wallet",
+    "Umbrella", "Raincoat", "Sunglasses", "Hat", "Slippers", "Socks",
+    "Planner", "Album", "Colored Pencils", "Paints", "Sketchbook", "Canvas",
+    "Palette", "Paintbrush", "Fountain Pen", "Ballpoint Pen", "Highlighter", "Correction Fluid",
+    "Cutter", "Glue", "Tape", "Compass", "Protractor", "Calculator",
+    "Dictionary", "Textbook", "Reference Book", "Workbook", "Newspaper", "Magazine",
+    "Pamphlet", "Ticket", "Train Ticket", "Card", "Coin", "Medal",
+    "Trophy", "Badge", "Ribbon", "Balloon", "Guitar", "Piano",
+    "Violin", "Flute", "Trumpet", "Drums", "Microphone", "Speaker",
+    "Camera", "Tripod", "Lens", "Film", "Binoculars", "Flashlight",
+    "Carry Case", "Suitcase", "Picnic Basket", "Lunch Box", "Swimsuit", "Inner Tube",
+    "Tent", "Sleeping Bag", "Lantern", "Portable Stove", "Cooler Box", "Hammock",
+    "Skateboard", "Surfboard", "Skis", "Snowboard", "Basketball", "Soccer Ball",
+    "Volleyball", "Tennis Racket", "Badminton Racket", "Baseball", "Glove", "Golf Club",
+    "Chess Set", "Playing Cards", "Shogi Board", "Go Board", "Rubik's Cube", "Jigsaw Puzzle",
+    "Board Game", "Dice", "Darts", "Yo-Yo", "Kendama", "Paper Balloon",
+    "Pinwheel", "Origami", "Clay", "Soap Bubbles", "Picture Postcard", "Stamp",
+    "Sticker Book", "Letter Set", "Kaleidoscope", "Marbles", "Glass Beads", "Spinning Top",
+    "Mask", "Paper Lantern", "Folding Fan", "Hand Fan", "Wind Chime", "Tenugui Towel",
+    "Yukata", "Kimono", "Geta Sandals", "Zori Sandals", "Drawstring Pouch", "Furoshiki Wrapping Cloth",
+    "Bell", "Haori Jacket", "Hagoita Paddle", "Fukuwarai Game", "Karuha Cards", "Sugoroku Game",
+    "Seashell", "Pinecone", "Fallen Leaf", "Pebble", "Crystal", "Amber",
+    "Four-leaf Clover", "Dried Flower", "Cactus", "Succulent", "Bonsai", "Air Plant"],
+            luckyItem: "📍 Lucky Item: "
+        },
+        zh: {
+            title: "🔮 每日十二星座運勢排行榜",
+            signs: [
+                { key: "aries", name: "白羊座 ♈" }, { key: "taurus", name: "金牛座 ♉" }, { key: "gemini", name: "双子座 ♊" },
+                { key: "cancer", name: "巨蟹座 ♋" }, { key: "leo", name: "狮子座 ♌" }, { key: "virgo", name: "处女座 ♍" },
+                { key: "libra", name: "天秤座 ♎" }, { key: "scorpio", name: "天蝎座 ♏" }, { key: "sagittarius", name: "射手座 ♐" },
+                { key: "capricorn", name: "摩羯座 ♑" }, { key: "aquarius", name: "水瓶座 ♒" }, { key: "pisces", name: "双鱼座 ♓" }
+            ],
+            prompts: [
+                "超级幸运！你在小卖部想要的东西大概能买到。这也是学习进展顺利的绝佳一天！",
+                "整体运势高涨。朋友不经意的一句话里，似乎藏着快乐的提示。",
+                "顺利的一天。只要注意别丢东西，就能过得很舒心。",
+                "平凡的运势。课前稍微复习一下，可能会转化为自信。",
+                "稍微喘口气。不慌不忙、按自己的节奏度过，就能防止忘带东西。",
+                "需要注意的日子！如果看手机时间太长，时间可能会一晃而过。",
+                "运势正在上升！面带微笑打招呼，预感会有好运势到来。",
+                "今天是小小的挑战能带来巨大自信的日子。",
+                "与朋友的对话中，可能隐藏着幸运的提示。",
+                "学习运很好！哪怕只在书桌前坐5分钟，也能集中精神。",
+                "恋爱运上升。自然的微笑会引发出你的魅力。",
+                "今天说声“谢谢”就能提升运势！",
+                "比平时稍微提早行动，似乎能吸引来好运。",
+                "仔细观察周围，会是有开心发现的一天。",
+                "运势稳定中。不要勉强，以最自然的状态度过吧。",
+                "今天和朋友合作，似乎能带来好的结果。",
+                "幸运日！下定决心去挑战的话，说不定会成功。",
+                "不用着急也没关系。一步一个脚印地前进就足够了。",
+                "不经意间发生的小事，可能会成为今天最美好的回忆。",
+                "接触自己喜欢的事物，心情和运势都会上升！",
+                "今天对周围人的体贴会招来好运。",
+                "比平时更加认真细致地去做，似乎会有让人高兴的结果。",
+                "运势在缓缓上升。相信自己，向前迈进吧！",
+                "今天坦率的心情是获得好运的关键。",
+                "巧妙地安排休息，专注力似乎就会恢复。",
+                "可能会发生幸运巧合的一天！",
+                "转换一下心情，似乎会涌现出新的想法。",
+                "预感今天会得到周围人温柔相助。",
+                "迈出一步的勇气会吸引来机遇。",
+                "学习运属于稳扎稳打型。日积月累会化为实力。",
+                "友情运极佳！这会是能开怀大笑的一天。",
+                "今天使用喜欢的文具，干劲会大增！",
+                "把别人的话听到最后，或许会有新的发现。",
+                "运势平和。珍惜自己的节奏吧。",
+                "今天稍微去冒险一下，似乎会有有趣的事发生。",
+                "比平时多环顾一下四周，说不定能找到幸运。",
+                "今天微笑是最好的幸运单品。",
+                "达成一个小目标，就会迎来充满成就感的一天。",
+                "恋爱运正缓慢上升。自然的你就是最大的魅力。",
+                "今天也别忘了留出时间夸夸自己。",
+                "需要注意的日子！如果太匆忙，小失误可能会增加。",
+                "今天冷静地核对一遍，就能安心度过。",
+                "运势还算不错。不急不躁地前进，一定没问题的！",
+                "举手之劳的小善意，似乎会带来意想不到的好运。",
+                "今天深呼吸一下，心情也会变得清爽！",
+                "预感和朋友在一起的寻常时光，会成为最棒的回忆。",
+                "幸运说不定就在意想不到的近处。",
+                "今天说出积极向上话语能提升运势！",
+                "坚持到最后不放弃，似乎会带来让人高兴的结果。",
+                "今天只要做你自己，光是这样就已经是非常棒的一天了。",
+                "超级幸运！一直让你挂心的事似乎要朝着好的方向发展了！",
+                "今天运势绝佳！预感果断的行动会带来好结果。",
+                "和朋友无意间的聊天，可能会成为今天最幸运的活动。",
+                "学习运上升！只要冷静下来，难题也能解开。",
+                "今天听听喜欢的音乐，心情和运势都会上升！",
+                "整体运势稳定。不要勉强，顺其自然度过吧。",
+                "今天的微小努力似乎能带来巨大的成果。",
+                "让人在意的的事情如果在今天内处理完，会感到神清气爽！",
+                "一个小笑话似乎能让一整天都变得明朗起来。",
+                "可能会有新发现的一天。",
+                "恋爱运上升中。和平常一样的微笑就是最大的魅力。",
+                "幸运其实就在不远处。好好观察一下四周吧！",
+                "今天提早行动似乎能带来从容的心态。",
+                "不用着急也没关系。自然的就会迎来好运势。",
+                "友情运很好！合作的话可能会遇到好事。",
+                "今天用喜欢的小零食来转换一下心情是个好主意。",
+                "逐一认真对待是通往成功的捷径。",
+                "这会是能察觉到周围人温柔的一天。",
+                "今天对自己说一句“没问题的！”吧。",
+                "小小的善举会招来意想不到的好运。",
+                "运势向上。这是挑战新事物的好机会！",
+                "今天如果扮演倾听者的角色，似乎会有好的发现。",
+                "只要保持微笑，周围的人似乎也会跟着微笑起来。",
+                "学习成功的要诀在于短时间集中精神。",
+                "今天从喜欢的科目开始学起，干劲会大增！",
+                "和朋友在一起的时间似乎能为自己补充能量。",
+                "今天说不定有机会和一直让你在意的人说话。",
+                "冷静行事有助于避免出错。",
+                "今天检查随身物品要比平时更仔细。",
+                "预感不经意的巧合会带来开心的事情。",
+                "运势正在缓慢恢复中。不用着急，没关系的！",
+                "今天重视自己的节奏是个好主意。",
+                "让今天成为不断积累小小成功的一天吧！",
+                "今天积极向上的一句话是提升运气的关键。",
+                "仔细环顾四周，似乎会有有趣的发现。",
+                "转换一下心情，似乎会冒出新的想法。",
+                "今天向某人表达感谢，会拥有快乐的心情。",
+                "朋友的一句话或许会给你推波助澜。",
+                "今天做个缓慢的深呼吸，就能平静下来。",
+                "微笑着打招呼，好运势就会开始流转。",
+                "需要注意的日子！如果把事情往后拖，可能会变得有点棘手。",
+                "今天如果时间充裕，就能安心地度过。",
+                "累了的时候不要勉强，适当休息也很重要。",
+                "今天整理一下身边的事物就能提升运势！",
+                "就算不着急，你的努力也都在稳步积累着。",
+                "预感今天会有幸运的时机到来。",
+                "转换一下心情，运势也会跟着重置！",
+                "今天是充满挑战意义的一天。",
+                "相信最后一定会顺利，然后向前迈进吧！",
+                "今天，像你一样的微笑依然是最好的幸运单品。"
+            ],
+            luckyItems: ["書本", "藍色鋼筆", "熱茶", "運動鞋", "筆記本", "綠植",
+    "手錶", "御守", "地圖", "咖啡", "耳機", "香氛",
+    "馬克杯", "環保袋", "橡皮擦", "貼紙", "手帕", "水壺",
+    "便利貼", "鑰匙圈", "文件夾", "書籤", "迴紋針", "日曆",
+    "護手霜", "眼鏡", "自動鉛筆", "直尺", "收納包", "托特包",
+    "證件套", "智慧型手機", "耳機", "隨行杯", "毛巾", "棒球帽",
+    "圍巾", "連帽衫", "後背包", "手鍊", "戒指", "項鍊",
+    "湯匙", "叉子", "盤子", "玻璃杯", "蠟燭", "檯燈",
+    "抱枕", "毯子", "海報", "明信片", "相框", "貼紙",
+    "紙膠帶", "剪刀", "釘書機", "筆袋", "包包", "錢包",
+    "雨傘", "雨衣", "太陽眼鏡", "帽子", "拖鞋", "襪子",
+    "手帳", "相冊", "色鉛筆", "顏料", "素描本", "畫布",
+    "調色盤", "畫筆", "鋼筆", "圓珠筆", "螢光筆", "修正液",
+    "美工刀", "膠水", "膠帶", "圓規", "量角器", "計算機",
+    "字典", "課本", "參考書", "練習題本", "報紙", "雜誌",
+    "宣傳冊", "票券", "車票", "卡片", "硬幣", "獎牌",
+    "獎盃", "徽章", "緞帶", "氣球", "吉他", "鋼琴",
+    "小提琴", "長笛", "小號", "爵士鼓", "麥克風", "喇叭",
+    "相機", "三腳架", "鏡頭", "底片", "雙筒望遠鏡", "手電筒",
+    "登機箱", "行李箱", "野餐籃", "便當盒", "泳衣", "泳圈",
+    "帳篷", "睡袋", "露營燈", "爐具", "保冷箱", "吊床",
+    "滑板", "衝浪板", "滑雪板", "單板滑雪板", "籃球", "足球",
+    "排球", "網球拍", "羽球拍", "棒球", "棒球手套", "高爾夫球桿",
+    "西洋棋", "撲克牌", "將棋盤", "圍棋盤", "魔術方塊", "拼圖",
+    "桌遊", "骰子", "飛鏢", "溜溜球", "劍玉", "紙氣球",
+    "風車", "摺紙", "黏土", "泡泡水", "明信片", "郵票",
+    "貼紙簿", "信紙組", "萬花筒", "彈珠", "玻璃珠", "陀螺",
+    "面具", "燈籠", "摺扇", "團扇", "風鈴", "手拭巾",
+    "浴衣", "和服", "木屐", "草履", "束口袋", "風呂敷",
+    "鈴鐺", "羽織", "羽子板", "福笑", "歌牌", "雙六",
+    "貝殼", "松果", "落葉", "小石子", "水晶", "琥珀",
+    "四葉草", "乾燥花", "仙人掌", "多肉植物", "盆栽", "空氣鳳梨"],
+            luckyItem: "📍 幸運物品: "
+        }
+    };
+// Ensure default state is locked (Read-Only Mode)
+let canEditTimetable = false; 
+
+/* Deterministic Randomness Seeded by Date for Daily Shuffling */
+function getTodaySeedString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+function seededRandom(seed) {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        hash = (hash << 5) - hash + seed.charCodeAt(i);
+        hash |= 0;
+    }
+    return function() {
+        let x = Math.sin(hash++) * 10000;
+        return x - Math.floor(x);
+    };
+}
+
+function seededShuffle(array, seed) {
+    let arr = [...array];
+    let rng = seededRandom(seed);
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+function checkInlinePasscode() {
+    const input = document.getElementById('passcode-inline-input');
+    if (input.value.trim() === '1111') {
+        canEditTimetable = true;
+        input.value = '';
+        applyEditPermissions();
+        alert('Unlocked! You can now edit the timetable and options.');
+    } else {
+        alert('Incorrect passcode.');
+    }
+}
+
+function lockPermissions() {
+    canEditTimetable = false;
+    applyEditPermissions();
+}
+
+// FIX: Removed the edit check so users can always open/view dropdown options
+function toggleMultiselect(periodIndex) {
+    const dropdown = document.getElementById(`ms-dropdown-${periodIndex}`);
+    if (!dropdown) return;
+
+    const isShown = dropdown.classList.contains('show');
+    
+    // Close all dropdowns first
+    document.querySelectorAll('.multiselect-dropdown').forEach(d => d.classList.remove('show'));
+    
+    if (!isShown) {
+        dropdown.classList.add('show');
+    }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.multiselect-container')) {
+        document.querySelectorAll('.multiselect-dropdown').forEach(d => d.classList.remove('show'));
+    }
+});
+
+// Added missing helper function to prevent runtime errors on dropdown labels
+function updateButtonLabel(periodIndex) {
+    const dropdown = document.getElementById(`ms-dropdown-${periodIndex}`);
+    const btn = document.getElementById(`ms-btn-${periodIndex}`);
+    if (!dropdown || !btn) return;
+
+    const checkedBoxes = dropdown.querySelectorAll('input[type="checkbox"]:checked');
+    const selectedVals = Array.from(checkedBoxes).map(cb => cb.value);
+
+    if (selectedVals.length > 0) {
+        btn.innerText = selectedVals.join(', ');
+    } else {
+        btn.innerText = translations[currentLang]?.selectPrompt || 'Select Subjects';
+    }
+}
+
+function applyEditPermissions() {
+    const statusBadge = document.getElementById('edit-status');
+    
+    // Select ONLY timetable input controls (exclude memo-cell textareas)
+    const timetableInputs = document.querySelectorAll(
+        '.period-select, .multiselect-btn, .timetable-input, .option-input, .btn-add-option'
+    );
+
+    if (canEditTimetable) {
+        if (statusBadge) {
+            statusBadge.className = 'edit-status-badge unlocked';
+            statusBadge.textContent = '🔓';
+        }
+        timetableInputs.forEach(el => el.removeAttribute('disabled'));
+    } else {
+        if (statusBadge) {
+            statusBadge.className = 'edit-status-badge locked';
+            statusBadge.textContent = '🔒';
+        }
+        timetableInputs.forEach(el => el.setAttribute('disabled', 'disabled'));
+    }
+
+    // Ensure personal memo textareas ALWAYS remain enabled regardless of timetable lock state
+    document.querySelectorAll('.memo-cell').forEach(memo => {
+        memo.removeAttribute('disabled');
+    });
+}
+
+function loadLocalStorageData() {
+    // Load local cache immediately
+    const savedTimetable = localStorage.getItem(STORAGE_KEY_TIMETABLE);
+    if (savedTimetable) {
+        try { timetableStorage = JSON.parse(savedTimetable); } catch(e) { timetableStorage = {}; }
+    }
+
+    const savedOptions = localStorage.getItem(STORAGE_KEY_OPTIONS);
+    if (savedOptions) {
+        try { customSubjects = JSON.parse(savedOptions); } catch(e) { customSubjects = []; }
+    }
+
+    // Call server function directly without needing API URLs or CORS
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+            .withSuccessHandler(function(cloudData) {
+                if (cloudData && typeof cloudData === 'object') {
+                    timetableStorage = { ...timetableStorage, ...cloudData };
+                    localStorage.setItem(STORAGE_KEY_TIMETABLE, JSON.stringify(timetableStorage));
+                    if (activeClassId) {
+                        loadTimetableData(activeClassId);
+                    }
+                }
+            })
+            .fetchCloudTimetable();
+    }
+}
+
+function enterApp(lang) {
+    currentLang = lang;
+    document.getElementById('homepage').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    
+    // Lock by default upon entering the app
+    lockPermissions();
+
+    loadLocalStorageData();
+    applyLanguageTexts();
+    initTrivia();
+    initBingo();
+    initHoroscope();
+    renderCalendar();
+    initPeriodsList();
+}
+
+function returnToLangSelect() {
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('homepage').style.display = 'flex';
+}
+
+function applyLanguageTexts() {
+    const t = translations[currentLang];
+    document.getElementById('nav-tab1').innerText = t.nav1;
+    document.getElementById('nav-tab2').innerText = t.nav2;
+    document.getElementById('nav-tab3').innerText = t.nav3;
+    document.getElementById('nav-tab4').innerText = t.nav4;
+    document.getElementById('btn-lang-return').innerText = t.returnLang;
+    document.getElementById('t1-course-title').innerText = t.selectClass;
+    
+    document.querySelectorAll('.btn-return-center').forEach(btn => btn.innerText = t.returnBtn);
+    document.getElementById('t2-title').innerText = t.triviaTitle;
+    document.getElementById('t2-btn').innerText = t.triviaBtn;
+    document.getElementById('t3-title').innerText = t.bingoTitle;
+    document.getElementById('t3-sub').innerText = t.bingoSub;
+    document.getElementById('t4-title').innerText = t.horoTitle;
+
+    const daysContainer = document.getElementById('cal-days-header');
+    daysContainer.innerHTML = t.calDays.map(d => `<span>${d}</span>`).join('');
+
+    updateSelectDropdowns();
+}
+
+function initPeriodsList() {
+    const container = document.getElementById('periods-list');
+    container.innerHTML = '';
+    
+    for (let i = 1; i <= 7; i++) {
+        const row = document.createElement('div');
+        row.className = 'period-row';
+        row.innerHTML = `
+            <span class="period-num">${i}</span>
+            <div class="multiselect-container">
+                <button type="button" class="multiselect-btn" id="ms-btn-${i}" onclick="toggleMultiselect(${i})">${translations[currentLang].selectPrompt}</button>
+                <div class="multiselect-dropdown" id="ms-dropdown-${i}"></div>
+            </div>
+            <input type="text" class="timetable-input p-val-${i}" oninput="saveCurrentTimetable()">
+        `;
+        container.appendChild(row);
+    }
+    updateSelectDropdowns();
+    applyEditPermissions();
+}
+
+function updateSelectDropdowns() {
+    const t = translations[currentLang];
+
+    for (let i = 1; i <= 7; i++) {
+        const dropdown = document.getElementById(`ms-dropdown-${i}`);
+        if (!dropdown) continue;
+
+        const selectedVals = Array.from(dropdown.querySelectorAll('input:checked')).map(cb => cb.value);
+
+        dropdown.innerHTML = '';
+
+        subjectGroups.forEach(group => {
+            if (group.subjects && group.subjects.length > 0) {
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'multiselect-group-title';
+                groupTitle.innerText = group.groupName;
+                dropdown.appendChild(groupTitle);
+
+                group.subjects.forEach(sub => {
+                    const item = document.createElement('label');
+                    item.className = 'multiselect-item';
+                    const isChecked = selectedVals.includes(sub) ? 'checked' : '';
+                    item.innerHTML = `<input type="checkbox" value="${sub}" ${isChecked} onchange="onCheckboxChange(${i})"> ${sub}`;
+                    dropdown.appendChild(item);
+                });
+            }
+        });
+
+        if (customSubjects.length > 0) {
+            const customTitle = document.createElement('div');
+            customTitle.className = 'multiselect-group-title';
+            customTitle.innerText = t.customGroupLabel;
+            dropdown.appendChild(customTitle);
+
+            customSubjects.forEach(sub => {
+                const item = document.createElement('label');
+                item.className = 'multiselect-item';
+                const isChecked = selectedVals.includes(sub) ? 'checked' : '';
+                item.innerHTML = `<input type="checkbox" value="${sub}" ${isChecked} onchange="onCheckboxChange(${i})"> ${sub}`;
+                dropdown.appendChild(item);
+            });
+        }
+
+        updateButtonLabel(i);
+    }
+
+    renderCustomOptionTags();
+}
+
+function addNewSubjectOption() {
+    if (!canEditTimetable) return;
+    const input = document.getElementById('new-option-input');
+    const val = input.value.trim();
+
+    const existsInGroups = subjectGroups.some(g => g.subjects.includes(val));
+
+    if (val && !existsInGroups && !customSubjects.includes(val)) {
+        customSubjects.push(val);
+        localStorage.setItem(STORAGE_KEY_OPTIONS, JSON.stringify(customSubjects));
+        updateSelectDropdowns();
+        input.value = '';
+    }
+}
+
+function removeSubjectOption(subjectToRemove) {
+    if (!canEditTimetable) return;
+    customSubjects = customSubjects.filter(sub => sub !== subjectToRemove);
+    localStorage.setItem(STORAGE_KEY_OPTIONS, JSON.stringify(customSubjects));
+    updateSelectDropdowns();
+}
+
+function renderCustomOptionTags() {
+    const container = document.getElementById('custom-tags-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    customSubjects.forEach(sub => {
+        const tag = document.createElement('div');
+        tag.className = 'custom-tag';
+        tag.innerHTML = `${sub} <button ${!canEditTimetable ? 'disabled' : ''} onclick="removeSubjectOption('${sub}')">✕</button>`;
+        container.appendChild(tag);
+    });
+}
+
+function onCheckboxChange(periodIndex) {
+    updateButtonLabel(periodIndex);
+    saveCurrentTimetable();
+}
+
+function chooseCourse(course) {
+    activeCourseCategory = course;
+    document.getElementById('t1-course-select').style.display = 'none';
+
+    if (course === 'tokushin') {
+        document.getElementById('t1-groups-tokushin').style.display = 'block';
+    } else if (course === 'sougou') {
+        document.getElementById('t1-groups-sougou').style.display = 'block';
+    } else if (course === 'jidousha') {
+        openTimetable('jidousha', '自動車専攻科');
+    }
+}
+
+function backToCourses() {
+    document.getElementById('t1-groups-tokushin').style.display = 'none';
+    document.getElementById('t1-groups-sougou').style.display = 'none';
+    document.getElementById('t1-course-select').style.display = 'block';
+}
+
+function openTimetable(classId, displayName) {
+    activeClassId = classId;
+
+    document.getElementById('t1-course-select').style.display = 'none';
+    document.getElementById('t1-groups-tokushin').style.display = 'none';
+    document.getElementById('t1-groups-sougou').style.display = 'none';
+    document.getElementById('t1-editor').style.display = 'block';
+
+    const suffix = translations[currentLang].suffixSched;
+    document.getElementById('timetable-class-header').innerText = displayName + suffix;
+
+    loadTimetableData(classId);
+}
+
+function backFromEditor() {
+    document.getElementById('t1-editor').style.display = 'none';
+    if (activeCourseCategory === 'tokushin') {
+        document.getElementById('t1-groups-tokushin').style.display = 'block';
+    } else if (activeCourseCategory === 'sougou') {
+        document.getElementById('t1-groups-sougou').style.display = 'block';
+    } else {
+        document.getElementById('t1-course-select').style.display = 'block';
+    }
+}
+
+function saveCurrentTimetable() {
+    if (!activeClassId || !canEditTimetable) return;
+
+    const data = { periods: [], memos: [] };
+
+    for (let i = 1; i <= 7; i++) {
+        const dropdown = document.getElementById(`ms-dropdown-${i}`);
+        const selectedOpts = dropdown ? Array.from(dropdown.querySelectorAll('input:checked')).map(cb => cb.value) : [];
+        const textVal = document.querySelector(`.p-val-${i}`) ? document.querySelector(`.p-val-${i}`).value : '';
+        data.periods.push({ options: selectedOpts, text: textVal });
+    }
+
+    for (let m = 0; m < 6; m++) {
+        const memoInput = document.getElementById(`memo-${m}`);
+        data.memos.push(memoInput ? memoInput.value : '');
+    }
+
+    // Save locally
+    timetableStorage[activeClassId] = data;
+    localStorage.setItem(STORAGE_KEY_TIMETABLE, JSON.stringify(timetableStorage));
+
+    // Save to Google Sheets
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+            .withSuccessHandler(function(res) {
+                console.log('Saved to Google Sheets:', res);
+            })
+            .saveCloudTimetable(activeClassId, data);
+    }
+}
+// Function dedicated strictly to saving private memos locally on the user's device
+function savePrivateMemos() {
+    if (!activeClassId) return;
+    const memoData = [];
+    for (let i = 0; i < 6; i++) {
+        const val = document.getElementById(`memo-${i}`)?.value || '';
+        memoData.push(val);
+    }
+    // Save only to local browser storage using the active class ID
+    localStorage.setItem(`private_memos_${activeClassId}`, JSON.stringify(memoData));
+}
+
+// Function to load private memos from local storage when a class is opened
+function loadPrivateMemos() {
+    if (!activeClassId) return;
+    const saved = localStorage.getItem(`private_memos_${activeClassId}`);
+    const memoData = saved ? JSON.parse(saved) : ["", "", "", "", "", ""];
+    
+    for (let i = 0; i < 6; i++) {
+        const memoElem = document.getElementById(`memo-${i}`);
+        if (memoElem) {
+            memoElem.value = memoData[i] || '';
+        }
+    }
+}
+
+function loadTimetableData(classId) {
+    const data = timetableStorage[classId] || { periods: [], memos: [] };
+
+    for (let i = 1; i <= 7; i++) {
+        const pData = data.periods[i - 1] || { options: [], text: '' };
+        const dropdown = document.getElementById(`ms-dropdown-${i}`);
+        
+        const targetOpts = Array.isArray(pData.options) ? pData.options : (pData.option ? [pData.option] : []);
+
+        if (dropdown) {
+            dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = targetOpts.includes(cb.value);
+            });
+        }
+
+        updateButtonLabel(i);
+        const input = document.querySelector(`.p-val-${i}`);
+        if (input) input.value = pData.text || '';
+    }
+
+    for (let m = 0; m < 6; m++) {
+        const memoInput = document.getElementById(`memo-${m}`);
+        if (memoInput) memoInput.value = data.memos[m] || '';
+    }
+    applyEditPermissions();
+}
+
+function renderCalendar() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const todayDate = now.getDate();
+
+    document.getElementById('timetable-current-date').innerText = `${year}年${month + 1}月${todayDate}日`;
+    document.getElementById('cal-month-header').innerText = `${year}年${month + 1}月`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const grid = document.getElementById('cal-dates-grid');
+    grid.innerHTML = '';
+
+    for (let i = 0; i < firstDay; i++) {
+        grid.appendChild(document.createElement('span'));
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const span = document.createElement('span');
+        span.innerText = day;
+        if (day === todayDate) span.className = 'today';
+        grid.appendChild(span);
+    }
+}
+
+let triviaIndex = 0;
+function initTrivia() {
+    triviaIndex = 0;
+    nextTrivia();
+}
+
+function nextTrivia() {
+    const list = triviaData[currentLang] || triviaData['ja'];
+    document.getElementById('trivia-text').innerText = list[triviaIndex];
+    triviaIndex = (triviaIndex + 1) % list.length;
+}
+
+function initBingo(forceNew = false) {
+    const rawList = bingoData[currentLang] || bingoData['ja'];
+    
+    // If you want new prompts every time forceNew is called, use a dynamic seed or standard shuffle
+    let shuffledList;
+    if (forceNew) {
+        // Fallback shuffle for fresh prompts
+        shuffledList = [...rawList].sort(() => Math.random() - 0.5).slice(0, 9);
+    } else {
+        const seed = getTodaySeedString() + "_" + currentLang + "_bingo";
+        shuffledList = seededShuffle(rawList, seed).slice(0, 9);
+    }
+
+    let savedSelected = [];
+    if (!forceNew) {
+        const saved = localStorage.getItem(STORAGE_KEY_BINGO_SELECTED);
+        if (saved) {
+            try { 
+                savedSelected = JSON.parse(saved); 
+                if (!Array.isArray(savedSelected)) savedSelected = [];
+            } catch (e) { 
+                savedSelected = []; 
+            }
+        }
+    } else {
+        localStorage.removeItem(STORAGE_KEY_BINGO_SELECTED);
+    }
+
+    // Build state using current language texts + preserved yellow square clicks
+    bingoState = shuffledList.map((text, idx) => ({
+        text: text,
+        selected: savedSelected.includes(idx)
+    }));
+
+    renderBingo();
+}
+
+function renderBingo() {
+    const grid = document.getElementById('bingo-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    bingoState.forEach((item, idx) => {
+        const cell = document.createElement('div');
+        cell.className = `bingo-cell ${item.selected ? 'selected' : ''}`;
+        cell.innerText = item.text;
+        cell.onclick = () => {
+            bingoState[idx].selected = !bingoState[idx].selected;
+            
+            // Save selected indexes
+            const selectedIndexes = bingoState
+                .map((cellObj, index) => cellObj.selected ? index : null)
+                .filter(index => index !== null);
+                
+            localStorage.setItem(STORAGE_KEY_BINGO_SELECTED, JSON.stringify(selectedIndexes));
+
+            renderBingo();
+            checkBingoLines();
+            checkAllSelectedAndReset();
+        };
+        grid.appendChild(cell);
+    });
+}
+
+function checkAllSelectedAndReset() {
+    const allSelected = bingoState.length > 0 && bingoState.every(item => item.selected);
+
+    if (allSelected) {
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.5 }
+            });
+        }
+        setTimeout(() => {
+            activeCompletedLines.clear();
+            initBingo(true);
+        }, 1000);
+    }
+}
+
+function checkBingoLines() {
+    const cells = document.querySelectorAll('.bingo-cell');
+    if (cells.length < 9) return;
+
+    const matrix = [];
+    cells.forEach((cell, i) => {
+        const row = Math.floor(i / 3);
+        const col = i % 3;
+        if (!matrix[row]) matrix[row] = [];
+        matrix[row][col] = cell.classList.contains('selected');
+    });
+
+    const lines = ['r0', 'r1', 'r2', 'c0', 'c1', 'c2', 'd1', 'd2'];
+
+    const isComplete = {
+        r0: matrix[0][0] && matrix[0][1] && matrix[0][2],
+        r1: matrix[1][0] && matrix[1][1] && matrix[1][2],
+        r2: matrix[2][0] && matrix[2][1] && matrix[2][2],
+        c0: matrix[0][0] && matrix[1][0] && matrix[2][0],
+        c1: matrix[0][1] && matrix[1][1] && matrix[2][1],
+        c2: matrix[0][2] && matrix[1][2] && matrix[2][2],
+        d1: matrix[0][0] && matrix[1][1] && matrix[2][2],
+        d2: matrix[0][2] && matrix[1][1] && matrix[2][0]
+    };
+
+    let newBingoAchieved = false;
+    lines.forEach(line => {
+        if (isComplete[line]) {
+            if (!activeCompletedLines.has(line)) {
+                activeCompletedLines.add(line);
+                newBingoAchieved = true;
+            }
+        } else {
+            activeCompletedLines.delete(line);
+        }
+    });
+
+    if (newBingoAchieved && typeof confetti === 'function') {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }
+}
+
+function initHoroscope() {
+    const lang = horoscopeTranslations[currentLang] ? currentLang : 'ja';
+    const data = horoscopeTranslations[lang];
+
+    document.getElementById('t4-title').innerText = data.title;
+    const container = document.getElementById('horoscope-ranked-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const seed = getTodaySeedString() + "_horoscope";
+    const shuffledSigns = seededShuffle(data.signs, seed);
+    const shuffledPrompts = seededShuffle(data.prompts, seed + "_prompts");
+    const shuffledItems = seededShuffle(data.luckyItems, seed + "_items");
+
+    shuffledSigns.forEach((sign, idx) => {
+        const card = document.createElement('div');
+        card.className = 'horoscope-card';
+        
+        let badgeClass = 'rank-badge';
+        if (idx === 0) badgeClass += ' top1';
+        else if (idx === 1) badgeClass += ' top2';
+        else if (idx === 2) badgeClass += ' top3';
+
+        card.innerHTML = `
+            <div class="horoscope-rank-header">
+                <span class="${badgeClass}">#${idx + 1}</span>
+                <span class="horoscope-rank-title">${sign.name}</span>
+            </div>
+            <div class="horoscope-desc">${shuffledPrompts[idx]}</div>
+            <div class="horoscope-item">${data.luckyItem}${shuffledItems[idx]} 🌟</div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tab-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+            
+            // Re-lock permissions automatically when switching tabs
+            lockPermissions();
+
+            document.querySelectorAll('.dashboard-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const targetElement = document.getElementById(targetTab);
+            if (targetElement) {
+                targetElement.classList.add('active');
+            }
+            button.classList.add('active');
+        });
+    });
+});
+</script>
+</body>
+</html>
